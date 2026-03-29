@@ -81,7 +81,7 @@ class Command(BaseCommand):
             upload_limit = int(limit_input) if limit_input.isdigit() else None
 
         # Supported formats
-        audio_extensions = ('.mp3', '.wav', '.flac', '.m4a', '.aac', '.ogg')
+        audio_extensions = ('.mp3', '.wav', '.flac', '.m4a', '.aac', '.ogg','.mpeg', '.mp4')
         image_extensions = ('.jpg', '.jpeg', '.png', '.webp', '.jfif', '.avif')
         
         uploaded_count = 0
@@ -124,7 +124,7 @@ class Command(BaseCommand):
                     song_title = filename_without_ext.strip()
                 
                 # Check if song already exists (check by both title and artist to avoid duplicates)
-                if Song.objects.filter(title=song_title, artist=artist_name).exists():
+                if Song.objects.filter(title=song_title, artist=artist_name, playlist=target_playlist).exists():
                     self.stdout.write(self.style.WARNING(f'⚠️  Skipped (already exists): {artist_name} - {song_title}'))
                     skipped_count += 1
                     continue

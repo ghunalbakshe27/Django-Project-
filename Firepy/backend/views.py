@@ -25,8 +25,16 @@ def search_songs(request):
     ).values('id', 'title', 'artist', 'audio_file', 'cover_image')[:20]
     
     results = []
+    seen = set()  # 🔥 track kar lo kaun se songs already add ho gaye
+    
     for song in songs:
-        # .values() se raw path aata hai, MEDIA_URL manually add karo
+        # Title + Artist combination unique key banao
+        key = (song['title'].lower().strip(), song['artist'].lower().strip())
+        
+        if key in seen:
+            continue  # duplicate hai — skip karo
+        seen.add(key)  # pehli baar aa rha hai — mark karo
+        
         audio_url = ''
         cover_url = ''
         
@@ -48,7 +56,6 @@ def search_songs(request):
         })
     
     return JsonResponse({'songs': results})
-
 
 @require_GET
 def search_songs_in_playlist(request):
