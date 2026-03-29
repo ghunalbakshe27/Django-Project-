@@ -1,0 +1,700 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F I R E P Y - Home</title>
+    <link rel="stylesheet" href="{% static 'backend/css/homepage.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="shortcut icon" href="{% static 'backend/images/firepy.jpg' %}" type="image/x-icon">
+</head>
+
+<body>
+
+    <!-- Ambient background -->
+    <div class="bg-layer">
+        <div class="orb orb-a"></div>
+        <div class="orb orb-b"></div>
+        <div class="orb orb-c"></div>
+    </div>
+
+    <!-- ══ HEADER ══ -->
+    <header>
+        <h1>FIREPY</h1>
+
+        <!-- Nav tabs that filter sections -->
+        <nav class="main-nav">
+            <a href="#" class="nav-tab active" data-filter="all">Home</a>
+            <a href="#" class="nav-tab" data-filter="artists">Artists</a>
+            <a href="#" class="nav-tab" data-filter="top_charts">Top Charts</a>
+            <a href="#" class="nav-tab" data-filter="playlist1,playlist2,New_section">Genres</a>
+        </nav>
+
+        <div class="header-right">
+
+            <div class="search-wrapper" id="searchWrapper">
+                <div class="search-bar-input" id="searchToggle">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.35-4.35" />
+                    </svg>
+                    <span class="search-placeholder-text">Search songs...</span>
+                </div>
+                <div class="search-expanded" id="searchExpanded">
+                    <div class="search-input-wrap">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.35-4.35" />
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search songs, artists..." autocomplete="off"
+                            spellcheck="false">
+                        <button class="search-close-btn" id="searchClose">×</button>
+                    </div>
+                    <div class="search-results-dropdown" id="searchResults"></div>
+                </div>
+            </div>
+
+            {% if is_authenticated %}
+            <button class="account-btn" id="accountBtn">
+                <div class="avatar-initials">{{ username|slice:":1" }}</div>
+            </button>
+            {% else %}
+            <a href="{% url 'user_login' %}" class="signin-btn">Sign In</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Account Sidebar -->
+    <div class="account-sidebar" id="accountSidebar">
+        <div class="sidebar-header">
+            <button class="close-btn" id="closeSidebar">×</button>
+            <div class="sidebar-avatar">
+                <div class="avatar-initials-lg">{{ username|slice:":1" }}</div>
+            </div>
+            <div class="sidebar-username">{{ username }}</div>
+            <div class="sidebar-email">{{ email }}</div>
+        </div>
+        <div class="divider"></div>
+        <div class="sidebar-menu">
+            <div class="menu-item" id="personalDetails">
+                <span class="menu-icon">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="8" r="4" />
+                        <path d="M4 20c0-4 3-6 8-6s8 2 8 6" />
+                    </svg>
+                </span>
+                <span>Personal Details</span>
+            </div>
+            <div class="menu-item" id="recentHistory">
+                <span class="menu-icon">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 6v6l4 2" />
+                    </svg>
+                </span>
+                <span>Recent History</span>
+            </div>
+            <div class="menu-item" id="likedSongs">
+                <span class="menu-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                </span>
+                <span>Liked Songs</span>
+            </div>
+            <div class="menu-item" id="logout">
+                <nav><a href="{% url 'user_logout' %}" class="ancor">Log Out</a></nav>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Personal Details -->
+    <div class="modal" id="personalModal">
+        <div class="modal-content">
+            <span class="modal-close" id="closePersonalModal">&times;</span>
+            <h2>Personal Details</h2>
+            <div class="modal-body" id="personalDetailsContent">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Recent History -->
+    <div class="modal" id="historyModal">
+        <div class="modal-content modal-large">
+            <span class="modal-close" id="closeHistoryModal">&times;</span>
+            <h2>Recent History</h2>
+            <div class="modal-body" id="historyContent">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Liked Songs -->
+    <div class="modal" id="likedModal">
+        <div class="modal-content modal-large">
+            <span class="modal-close" id="closeLikedModal">&times;</span>
+            <h2>Liked Songs</h2>
+            <div class="modal-body" id="likedContent">
+                <div class="loading">Loading...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ HERO ══ -->
+    <section class="hero">
+        <div class="hero-inner">
+            <div class="hero-label">
+                <span class="label-dot"></span>
+                THE PULSE OF THE DEEP
+            </div>
+            <h1 class="hero-headline">
+                <span class="hl-1">IGNITE THE</span>
+                <span class="hl-2">ETERNAL <em>SOUL</em></span>
+                <span class="hl-3">OF SOUND</span>
+            </h1>
+            <p class="hero-desc">
+                Experience the metamorphosis of sound — from ancient rhythms to electric neon futures.
+            </p>
+            <div class="hero-cta">
+                <button class="btn-primary"
+                    onclick="document.querySelector('.container').scrollIntoView({behavior:'smooth'})">
+                    <span>Experience Now</span>
+                    <svg viewBox="0 0 24 24">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                </button>
+                <button class="btn-ghost"
+                    onclick="document.querySelector('.container').scrollIntoView({behavior:'smooth'})">Explore
+                    Collections</button>
+            </div>
+        </div>
+        <!-- floating orb accent -->
+        <div class="hero-orb-accent"></div>
+
+        <!-- Right side decorative components -->
+        <div class="hero-right">
+            <div class="ring-deco"></div>
+            <div class="now-playing">
+                <div class="pulse-dot"></div>
+                Now Playing
+            </div>
+            <div class="v-card v-main">
+                <div class="card-placeholder" style="background: linear-gradient(135deg, #2a1a4a, #1a0f35, #3a1560);">🎵
+                </div>
+            </div>
+            <div class="v-card v-sm">
+                <div class="card-placeholder" style="background: linear-gradient(135deg, #1a1035, #2a1548, #160c30);">🎧
+                </div>
+            </div>
+            <div class="eq-badge">
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+                <div class="eq-bar"></div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ══ MAIN CONTENT ══ -->
+    <div class="container">
+
+        <!-- Hidden SVG icons -->
+        <svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+            <symbol id="icon-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"></polyline>
+            </symbol>
+            <symbol id="icon-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </symbol>
+        </svg>
+
+        <!-- PlayList-1 -->
+        {% if playlists_by_type.playlist1 %}
+        <div class="section" data-section-type="playlist1">
+            <div class="section-head">
+                <div>
+                    <h2>{{ playlists_by_type.playlist1.0.get_playlist_type_display|default:"Sonic Landscapes" }}</h2>
+                    <p class="section-sub">Curated journeys through the subcontinent</p>
+                </div>
+                <div class="arrow-controls">
+                    <button class="mini-arrow mini-left" aria-label="prev">‹</button>
+                    <button class="mini-arrow mini-right" aria-label="next">›</button>
+                </div>
+
+            </div>
+            <div class="grid-wrapper">
+                <div class="grid grid-landscape">
+                    {% for playlist in playlists_by_type.playlist1 %}
+                    <div class="grid-item card-landscape">
+                        <a href="{% url 'playlist_view' slug=playlist.slug %}">
+                            <div class="card-img-wrap">
+                                <img src="{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}{% static 'backend/images/default-cover.jpg' %}{% endif %}"
+                                    alt="{{ playlist.name }}">
+                                <div class="card-overlay"></div>
+
+                            </div>
+                            <div class="card-info">
+                                <h3>{{ playlist.name }}</h3>
+
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Two Column Layout: PlayList-2 + Artists side by side -->
+        <div class="two-col-layout">
+
+            <!-- PlayList-2 — left: vertical list style -->
+            {% if playlists_by_type.playlist2 %}
+            <div class="section col-list" data-section-type="playlist2">
+                <div class="section-head">
+                    <div>
+                        <h2>The New Wave</h2>
+                        <p class="section-sub section-live"><span class="live-dot"></span> Weekly Updates</p>
+                    </div>
+                </div>
+                <div class="list-tracks">
+                    {% for playlist in playlists_by_type.playlist2 %}
+                    <a href="{% url 'playlist_view' slug=playlist.slug %}" class="track-row">
+                        <span class="track-num">{{ forloop.counter }}</span>
+                        <img class="track-thumb"
+                            src="{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}{% static 'backend/images/default-cover.jpg' %}{% endif %}"
+                            alt="{{ playlist.name }}">
+                        <div class="track-info">
+                            <span class="track-name">{{ playlist.name }}</span>
+
+                        </div>
+                        <svg class="track-arrow" viewBox="0 0 24 24">
+                            <path d="M9 18l6-6-6-6" />
+                        </svg>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Artists — right: big featured card style -->
+            {% if playlists_by_type.artists %}
+            <div class="section col-featured" data-section-type="artists">
+                <div class="section-head">
+                    <div>
+                        <h2>Artists</h2>
+                        <p class="section-sub">Visionaries shaping tomorrow</p>
+                    </div>
+                    <div class="arrow-controls">
+                        <button class="mini-arrow mini-left" aria-label="prev">‹</button>
+                        <button class="mini-arrow mini-right" aria-label="next">›</button>
+                    </div>
+                </div>
+                <div class="featured-artists-grid">
+                    {% for playlist in playlists_by_type.artists %}
+                    <a href="{% url 'playlist_view' slug=playlist.slug %}" class="artist-card">
+                        <img src="{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}{% static 'backend/images/default-cover.jpg' %}{% endif %}"
+                            alt="{{ playlist.name }}">
+                        <div class="artist-overlay">
+                            <span class="artist-tag">Artist</span>
+                            <h3 class="artist-name">{{ playlist.name }}</h3>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <!-- Top Charts — horizontal scroll with big cinematic cards -->
+        {% if playlists_by_type.top_charts %}
+        <div class="section" data-section-type="top_charts">
+            <div class="section-head">
+                <div>
+                    <h2>The Top Charts</h2>
+                    <p class="section-sub">Architecture experiments from the bleeding edge of sound fusion</p>
+                </div>
+                <div class="arrow-controls">
+                    <button class="mini-arrow mini-left" aria-label="prev">‹</button>
+                    <button class="mini-arrow mini-right" aria-label="next">›</button>
+                </div>
+
+            </div>
+            <div class="grid-wrapper">
+
+                <div class="grid grid-wave">
+                    {% for playlist in playlists_by_type.top_charts %}
+                    <div class="grid-item card-wave">
+                        <a href="{% url 'playlist_view' slug=playlist.slug %}">
+                            <div class="wave-img-wrap">
+                                <img src="{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}{% static 'backend/images/default-cover.jpg' %}{% endif %}"
+                                    alt="{{ playlist.name }}">
+                                <div class="wave-overlay"></div>
+                                <span class="wave-num">{{ forloop.counter|stringformat:"02d" }}</span>
+                            </div>
+                            <div class="wave-info">
+                                <h3>{{ playlist.name }}</h3>
+
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- New Section — editorial magazine row with big text overlay cards -->
+        {% if playlists_by_type.New_section %}
+        <div class="section" data-section-type="New_section">
+            <div class="section-head">
+                <div>
+                    <h2>Industry Pulse</h2>
+                    <p class="section-sub">What's moving the world of music right now</p>
+                </div>
+            </div>
+            <div class="grid-wrapper">
+
+                <div class="grid grid-pulse">
+                    {% for playlist in playlists_by_type.New_section %}
+                    <div class="grid-item card-pulse">
+                        <a href="{% url 'playlist_view' slug=playlist.slug %}">
+                            <div class="pulse-img-wrap">
+                                <img src="{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}{% static 'backend/images/default-cover.jpg' %}{% endif %}"
+                                    alt="{{ playlist.name }}">
+                                <div class="pulse-overlay"></div>
+                            </div>
+                            <div class="pulse-info">
+                                <span class="pulse-cat">NEW RELEASE</span>
+                                <h3>{{ playlist.name }}</h3>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <!-- ══ CTA BANNER ══ -->
+    <section class="cta-banner">
+        <div class="cta-inner">
+            <p class="cta-eyebrow">Join the collective</p>
+            <h2 class="cta-title">
+                AWAKEN YOUR<br><em>INNER RAGA</em>
+            </h2>
+            <p class="cta-sub">Join the community redefining the sound of the subcontinent. Exclusive drops, heritage
+                archives, and the future of Indian rhythm.</p>
+            <div class="cta-btns">
+                {% if is_authenticated %}
+                <button class="btn-primary"
+                    onclick="document.querySelector('.container').scrollIntoView({behavior:'smooth'})">
+                    <span>Explore Now</span>
+                </button>
+                {% else %}
+                <a href="{% url 'ogregister' %}" class="btn-primary">
+                    <span>Join the Collective</span>
+                </a>
+                <a href="{% url 'user_login' %}" class="btn-ghost">View Membership</a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <h3>F I R E P Y</h3>
+                <p>The pulse of the deep.<br>Stream ancient roots to electric neon.</p>
+            </div>
+            <div class="footer-links">
+                <a href="{% url 'aboutus' %}">About Us</a>
+                {% if not is_authenticated %}
+                <a href="{% url 'user_login' %}">Login</a>
+                <a href="{% url 'ogregister' %}">Register</a>
+                {% endif %}
+            </div>
+            <p class="footer-copy">&copy; 2026 F I R E P Y. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Mini Music Player -->
+    <div class="mini-player" id="miniPlayer">
+        <div class="mini-player-left">
+            <img id="mpCover" src="" alt="cover" class="mp-cover">
+            <div class="mp-song-info">
+                <span class="mp-title" id="mpTitle">—</span>
+                <span class="mp-artist" id="mpArtist">—</span>
+            </div>
+        </div>
+        <div class="mini-player-center">
+            <button class="mp-btn" id="mpPrev" title="Previous">
+                <svg viewBox="0 0 24 24">
+                    <path d="M19 20L9 12l10-8v16z" />
+                    <line x1="5" y1="4" x2="5" y2="20" />
+                </svg>
+            </button>
+            <button class="mp-btn mp-play" id="mpPlayPause" title="Play/Pause">
+                <svg id="mpPlayIcon" viewBox="0 0 24 24">
+                    <polygon points="5,3 19,12 5,21" />
+                </svg>
+                <svg id="mpPauseIcon" viewBox="0 0 24 24" style="display:none">
+                    <rect x="6" y="4" width="4" height="16" />
+                    <rect x="14" y="4" width="4" height="16" />
+                </svg>
+            </button>
+            <button class="mp-btn" id="mpNext" title="Next">
+                <svg viewBox="0 0 24 24">
+                    <path d="M5 4l10 8-10 8V4z" />
+                    <line x1="19" y1="4" x2="19" y2="20" />
+                </svg>
+            </button>
+        </div>
+        <div class="mini-player-right">
+            <div class="mp-progress-wrap">
+                <span class="mp-time" id="mpCurrentTime">0:00</span>
+                <div class="mp-progress-bar" id="mpProgressBar">
+                    <div class="mp-progress-fill" id="mpProgressFill"></div>
+                    <div class="mp-progress-thumb" id="mpProgressThumb"></div>
+                </div>
+                <span class="mp-time" id="mpDuration">0:00</span>
+            </div>
+            <div class="mp-right-controls">
+                <button class="mp-btn mp-like-btn" id="mpLikeBtn" title="Like">
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                </button>
+                <button class="mp-btn mp-close-btn" id="mpClose" title="Close">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <audio id="mpAudio"></audio>
+    </div>
+
+    <!-- Login Popup Modal -->
+    {% if not is_authenticated %}
+    <div class="login-popup-modal" id="loginPopupModal">
+        <div class="login-popup-content">
+            <span class="login-popup-close" id="closeLoginPopup">&times;</span>
+            <div class="login-popup-header">
+                <div class="popup-logo">
+                    <img src="{% static 'backend/images/firepy.jpg' %}" alt="FIREPY Logo">
+                </div>
+                <h2>Login to FIREPY</h2>
+            </div>
+            <div class="login-popup-body">
+                <p>Unlock the full FIREPY experience!</p>
+                <ul class="benefits-list">
+                    <li>🎵 Create personalized playlists</li>
+                    <li>❤️ Save your favorite songs</li>
+                    <li>📜 Track your listening history</li>
+                    <li>🎯 Get personalized recommendations</li>
+                </ul>
+            </div>
+            <div class="login-popup-footer">
+                <a href="{% url 'user_login' %}" class="btn-popup-login">Login Now</a>
+                <a href="{% url 'ogregister' %}" class="btn-popup-signup">Create Account</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <script src="{% static 'backend/js/homepage.js' %}"></script>
+
+
+
+    <script>
+        (function () {
+            const tabs = document.querySelectorAll('.nav-tab');
+            const sections = document.querySelectorAll('.section[data-section-type]');
+            const twoCol = document.querySelector('.two-col-layout');
+
+            function applyFilter(filter, animate) {
+                tabs.forEach(t => t.classList.remove('active'));
+                const activeTab = [...tabs].find(t => t.dataset.filter === filter) || tabs[0];
+                activeTab.classList.add('active');
+
+                sections.forEach(section => {
+                    if (filter === 'all') {
+                        section.style.display = '';
+                        if (animate) section.style.animation = 'fadeUp 0.4s ease both';
+                    } else {
+                        const types = filter.split(',');
+                        const sType = section.dataset.sectionType;
+                        if (types.includes(sType)) {
+                            section.style.display = '';
+                            if (animate) section.style.animation = 'fadeUp 0.4s ease both';
+                        } else {
+                            section.style.display = 'none';
+                        }
+                    }
+                });
+
+                if (twoCol) {
+                    if (filter === 'all') {
+                        twoCol.style.display = '';
+                        twoCol.classList.remove('single-col');
+                    } else {
+                        const types = filter.split(',');
+                        const hasPlaylist2 = types.includes('playlist2');
+                        const hasArtists = types.includes('artists');
+                        const colList = twoCol.querySelector('.col-list');
+                        const colFeat = twoCol.querySelector('.col-featured');
+                        if (colList) colList.style.display = hasPlaylist2 ? '' : 'none';
+                        if (colFeat) colFeat.style.display = hasArtists ? '' : 'none';
+                        const anyVisible = (hasPlaylist2 && colList) || (hasArtists && colFeat);
+                        twoCol.style.display = anyVisible ? '' : 'none';
+                        const bothVisible = hasPlaylist2 && hasArtists && colList && colFeat;
+                        twoCol.classList.toggle('single-col', !bothVisible);
+                    }
+                }
+            }
+
+            // Page load pe hash se tab restore karo (scroll nahi, sirf filter)
+            const savedFilter = window.location.hash.replace('#', '') || 'all';
+            applyFilter(savedFilter, false);
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const filter = this.dataset.filter;
+
+                    // Hash update karo
+                    window.location.hash = filter === 'all' ? '' : filter;
+
+                    applyFilter(filter, true);
+
+                    // Scroll logic
+                    setTimeout(() => {
+                        const headerH = document.querySelector('header')?.offsetHeight || 62;
+                        const EXTRA_GAP = 20;
+                        let targetEl = null;
+
+                        if (filter !== 'all') {
+                            const types = filter.split(',');
+                            if (twoCol && twoCol.style.display !== 'none') {
+                                targetEl = twoCol;
+                            } else {
+                                for (const sec of sections) {
+                                    if (sec.style.display !== 'none' && types.includes(sec.dataset.sectionType)) {
+                                        targetEl = sec;
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            targetEl = document.querySelector('.container');
+                        }
+
+                        if (targetEl) {
+                            const top = targetEl.getBoundingClientRect().top + window.scrollY - headerH - EXTRA_GAP;
+                            window.scrollTo({ top, behavior: 'smooth' });
+                        }
+                    }, 50);
+                });
+            });
+        })();
+    </script>
+    <!-- Scroll Arrow Logic -->
+    <script>
+        (function () {
+            const SCROLL_AMOUNT = 360;
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                        updateEdges(entry.target);
+                    } else {
+                        entry.target.classList.remove('in-view');
+                    }
+                });
+            }, { threshold: 0.15 });
+
+            function updateEdges(wrapper) {
+                const grid = wrapper.querySelector('.grid');
+                if (!grid) return;
+                const atStart = grid.scrollLeft <= 4;
+                const atEnd = grid.scrollLeft + grid.clientWidth >= grid.scrollWidth - 4;
+                wrapper.classList.toggle('at-start', atStart);
+                wrapper.classList.toggle('at-end', atEnd);
+            }
+
+            document.querySelectorAll('.grid-wrapper').forEach(wrapper => {
+                const grid = wrapper.querySelector('.grid');
+                const btnLeft = wrapper.querySelector('.arrow-left');
+                const btnRight = wrapper.querySelector('.arrow-right');
+                if (!grid) return;
+                observer.observe(wrapper);
+                updateEdges(wrapper);
+                grid.addEventListener('scroll', () => updateEdges(wrapper), { passive: true });
+                if (btnLeft) btnLeft.addEventListener('click', () => grid.scrollBy({ left: -SCROLL_AMOUNT, behavior: 'smooth' }));
+                if (btnRight) btnRight.addEventListener('click', () => grid.scrollBy({ left: SCROLL_AMOUNT, behavior: 'smooth' }));
+            });
+
+            // Mini arrows for artists section
+            document.querySelectorAll('.mini-left').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Dono querySelector mein '.featured-artists-grid, .grid' kar do
+                    const grid = btn.closest('.section').querySelector('.featured-artists-grid, .grid');
+                    if (grid) grid.scrollBy({ left: -300, behavior: 'smooth' });
+                });
+            });
+            document.querySelectorAll('.mini-right').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Dono querySelector mein '.featured-artists-grid, .grid' kar do
+                    const grid = btn.closest('.section').querySelector('.featured-artists-grid, .grid');
+                    if (grid) grid.scrollBy({ left: 300, behavior: 'smooth' });
+                });
+            });
+        })();
+    </script>
+
+    <!-- Login Popup Script -->
+    {% if not is_authenticated %}
+    <script>
+        const loginPopupModal = document.getElementById('loginPopupModal');
+        const closeLoginPopup = document.getElementById('closeLoginPopup');
+        let popupInterval;
+        function showLoginPopup() { loginPopupModal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+        function hideLoginPopup() { loginPopupModal.style.display = 'none'; document.body.style.overflow = 'auto'; startPopupTimer(); }
+        function startPopupTimer() { if (popupInterval) clearInterval(popupInterval); popupInterval = setInterval(showLoginPopup, 6000); }
+        setTimeout(showLoginPopup, 3000);
+        startPopupTimer();
+        closeLoginPopup.onclick = hideLoginPopup;
+        document.addEventListener('keydown', function (event) { if (event.key === 'Escape' && loginPopupModal.style.display === 'flex') hideLoginPopup(); });
+
+
+
+    </script>
+    {% endif %}
+
+</body>
+
+</html>

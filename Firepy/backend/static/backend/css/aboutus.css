@@ -1,0 +1,456 @@
+/* ══════════════════════════════════════════
+   FIREPY — About Us CSS
+   Theme: Matches homepage hero purple vars
+   ══════════════════════════════════════════ */
+
+:root {
+    --bg: #0e0c18;
+    --purple-soft: #c4aee0;
+    --purple-mid: #9b72cf;
+    --purple-deep: #6b3fa0;
+    --text-main: #ece8f5;
+    --text-dim: #8a82a8;
+    --card-bg: #16132a;
+    --card-border: rgba(180, 150, 230, 0.12);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+.about-section h2,
+h3 {
+    font-family: "poppins", sans-serif;
+}
+
+body {
+    /* font-family: 'Orbitron', sans-serif; */
+    background: var(--bg);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* ── AMBIENT BACKGROUND ── */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 55% 60% at 5% 10%, rgba(107, 63, 160, 0.28) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 55% at 95% 80%, rgba(196, 174, 224, 0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 45% at 50% 50%, rgba(107, 63, 160, 0.06) 0%, transparent 70%);
+}
+
+/* ══════════════════════
+   HEADER
+   — H1 left, nav center, (koi account btn nahi about us me)
+   — Exactly matches homepage header layout
+   ══════════════════════ */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 48px;
+    height: 68px;
+    background: rgba(14, 12, 24, 0.82);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border-bottom: 1px solid rgba(180, 150, 230, 0.10);
+    animation: slideDown 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* FIREPY — left side, same as homepage */
+header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.3em;
+    white-space: nowrap;
+    background: linear-gradient(130deg, #fff 0%, var(--purple-soft) 55%, var(--purple-mid) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    margin: 0;
+    width: auto;
+    overflow: visible;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        filter: drop-shadow(0 0 8px rgba(196, 174, 224, .5));
+    }
+
+    to {
+        filter: drop-shadow(0 0 22px rgba(196, 174, 224, .85));
+    }
+}
+
+/* nav — right side */
+nav {
+    margin: 0;
+    padding: 0;
+}
+
+nav a {
+    font-size: .88rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-decoration: none;
+    padding: 8px 18px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    display: inline-block;
+    transition: all .28s ease;
+}
+
+nav a:hover {
+    color: var(--purple-soft);
+    border-color: rgba(196, 174, 224, .22);
+    background: rgba(196, 174, 224, .07);
+    transform: translateY(-1px);
+}
+
+/* ══════════════════════
+   MAIN CONTAINER
+   ══════════════════════ */
+.container {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 48px auto;
+    padding: 44px 48px;
+    background: linear-gradient(160deg, rgba(22, 19, 42, 0.85) 0%, rgba(14, 12, 24, 0.90) 100%);
+    border-radius: 24px;
+    border: 1px solid rgba(196, 174, 224, 0.16);
+    box-shadow:
+        0 0 0 1px rgba(155, 114, 207, .06),
+        0 24px 64px rgba(107, 63, 160, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, .04);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    backdrop-filter: blur(20px);
+}
+
+.container:hover {
+    transform: translateY(-4px);
+    box-shadow:
+        0 0 0 1px rgba(155, 114, 207, .10),
+        0 32px 80px rgba(107, 63, 160, 0.45);
+}
+
+/* ── HEADINGS ── */
+h2 {
+    font-family: 'Syne', sans-serif;
+    color: var(--text-main);
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 28px 0 10px;
+    padding-left: 16px;
+    border-left: 3px solid var(--purple-mid);
+    background: linear-gradient(90deg, var(--purple-soft), var(--purple-mid));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: .01em;
+}
+
+h2:first-child {
+    margin-top: 0;
+}
+
+h3 {
+    color: var(--text-dim);
+    font-weight: 500;
+    line-height: 1.8;
+    margin-bottom: 24px;
+    font-size: 1rem;
+    text-align: justify;
+}
+
+/* ══════════════════════
+   CONTACT SECTION
+   ══════════════════════ */
+.contact-section {
+    text-align: center;
+    border-top: 1px solid rgba(196, 174, 224, 0.12);
+    margin-top: 32px;
+    padding-top: 32px;
+}
+
+.contact-section h2 {
+    display: inline-block;
+    margin-bottom: 6px;
+}
+
+.mail-container {
+    margin: 20px 0 28px;
+}
+
+.email-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--purple-soft);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    padding: 12px 28px;
+    background: rgba(155, 114, 207, 0.07);
+    border: 1px solid rgba(196, 174, 224, 0.22);
+    border-radius: 50px;
+    transition: all .35s ease;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.email-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--purple-deep), var(--purple-mid));
+    opacity: 0;
+    transition: opacity .35s ease;
+    z-index: -1;
+}
+
+.email-link i {
+    font-size: 1.4rem;
+    transition: transform .3s ease;
+}
+
+.email-link:hover {
+    color: #fff;
+    border-color: var(--purple-mid);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 28px rgba(107, 63, 160, 0.45);
+}
+
+.email-link:hover::before {
+    opacity: 1;
+}
+
+.email-link:hover i {
+    transform: rotate(-10deg) scale(1.2);
+}
+
+/* ══════════════════════
+   SOCIAL ICONS
+   ══════════════════════ */
+.social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+}
+
+.icon-box {
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    background: rgba(196, 174, 224, 0.05);
+    border: 1px solid rgba(196, 174, 224, 0.22);
+    border-radius: 14px;
+    color: var(--purple-soft);
+    font-size: 1.5rem;
+    transition: all .4s cubic-bezier(.175, .885, .32, 1.275);
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.icon-box::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--purple-deep), var(--purple-mid));
+    opacity: 0;
+    transition: opacity .35s ease;
+    z-index: -1;
+}
+
+.icon-box:hover {
+    color: #fff;
+    border-color: var(--purple-mid);
+    transform: translateY(-8px) rotate(5deg);
+    box-shadow: 0 12px 28px rgba(107, 63, 160, 0.5);
+}
+
+.icon-box:hover::before {
+    opacity: 1;
+}
+
+/* ══════════════════════
+   FOOTER
+   ══════════════════════ */
+footer {
+    position: relative;
+    z-index: 1;
+    margin-top: auto;
+    padding: 18px;
+    font-size: .82rem;
+    text-align: center;
+    color: var(--text-dim);
+    letter-spacing: .04em;
+    border-top: 1px solid rgba(180, 150, 230, 0.08);
+    background: rgba(14, 12, 24, 0.6);
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — 768px
+   header: h1 left (absolute top-left),
+           nav center bottom row
+   ══════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+    header {
+        position: relative;
+        /* needed for absolute account-btn pattern */
+        min-height: auto;
+        height: auto;
+        padding: 8px 12px;
+        flex-wrap: wrap;
+        gap: 4px;
+        align-items: center;
+    }
+
+    /* FIREPY — stays left, same as homepage mobile */
+    header h1 {
+        font-size: 1.55rem;
+        letter-spacing: .22em;
+        margin-top: 3px;
+        margin-bottom: 6px;
+        order: 1;
+    }
+
+    /* nav — full width, centered below h1 */
+    nav {
+        order: 2;
+        width: 100%;
+        text-align: center;
+        margin-top: 2px;
+        margin-bottom: 4px;
+    }
+
+    nav a {
+        font-size: .88rem;
+        margin: 0 5px;
+        padding: 6px 12px;
+    }
+
+    .container {
+        margin: 24px 16px;
+        padding: 28px 22px;
+        border-radius: 18px;
+    }
+
+    h2 {
+        font-size: 1.3rem;
+        margin: 22px 0 8px;
+        padding-left: 12px;
+    }
+
+    h3 {
+        font-size: .92rem;
+        margin-bottom: 18px;
+    }
+
+    .contact-section {
+        margin-top: 24px;
+        padding-top: 24px;
+    }
+
+    .email-link {
+        font-size: .95rem;
+        padding: 10px 20px;
+        gap: 9px;
+    }
+
+    .email-link i {
+        font-size: 1.2rem;
+    }
+
+    .icon-box {
+        width: 46px;
+        height: 46px;
+        font-size: 1.3rem;
+        border-radius: 12px;
+    }
+
+    .social-icons {
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    footer {
+        font-size: .75rem;
+        padding: 12px;
+    }
+}
+
+/* ══════════════════════
+   RESPONSIVE — 400px
+   ══════════════════════ */
+@media (max-width: 400px) {
+    header h1 {
+        font-size: 1.3rem;
+        letter-spacing: .18em;
+    }
+
+    .container {
+        margin: 16px 10px;
+        padding: 20px 16px;
+    }
+
+    h2 {
+        font-size: 1.15rem;
+    }
+
+    h3 {
+        font-size: .88rem;
+    }
+
+    .email-link {
+        font-size: .85rem;
+        padding: 9px 16px;
+    }
+
+    .icon-box {
+        width: 42px;
+        height: 42px;
+        font-size: 1.2rem;
+    }
+}

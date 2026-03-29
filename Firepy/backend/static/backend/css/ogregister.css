@@ -1,0 +1,514 @@
+/* ══════════════════════════════════════════
+   FIREPY — Register Page CSS
+   Theme: Matches homepage hero purple vars
+   ══════════════════════════════════════════ */
+
+:root {
+    --bg: #0e0c18;
+    --purple-soft: #c4aee0;
+    --purple-mid: #9b72cf;
+    --purple-deep: #6b3fa0;
+    --text-main: #ece8f5;
+    --text-dim: #8a82a8;
+    --card-bg: #16132a;
+    --card-border: rgba(180, 150, 230, 0.12);
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* ── AMBIENT BACKGROUND ── */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(ellipse 55% 60% at 5% 10%, rgba(107, 63, 160, 0.28) 0%, transparent 65%),
+        radial-gradient(ellipse 50% 55% at 95% 80%, rgba(196, 174, 224, 0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 45% at 50% 50%, rgba(107, 63, 160, 0.06) 0%, transparent 70%);
+}
+
+/* ══════════════════════
+   HEADER
+   — H1 left, same as homepage
+   ══════════════════════ */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    padding: 0 48px;
+    height: 68px;
+    background: rgba(14, 12, 24, 0.82);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border-bottom: 1px solid rgba(180, 150, 230, 0.10);
+    animation: slideDown 0.7s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* FIREPY — left side */
+header h1 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.3em;
+    white-space: nowrap;
+    background: linear-gradient(130deg, #fff 0%, var(--purple-soft) 55%, var(--purple-mid) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    margin: 0;
+    width: auto;
+    overflow: visible;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from {
+        filter: drop-shadow(0 0 8px rgba(196, 174, 224, .5));
+    }
+
+    to {
+        filter: drop-shadow(0 0 22px rgba(196, 174, 224, .85));
+    }
+}
+
+/* ══════════════════════
+   MAIN
+   ══════════════════════ */
+main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    position: relative;
+    z-index: 1;
+}
+
+form {
+    width: 100%;
+    max-width: 540px;
+}
+
+/* ══════════════════════
+   FORM CONTAINER
+   ══════════════════════ */
+.container {
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 40px 44px;
+    background: linear-gradient(160deg, rgba(22, 19, 42, 0.88) 0%, rgba(14, 12, 24, 0.92) 100%);
+    border-radius: 24px;
+    border: 1px solid rgba(196, 174, 224, 0.18);
+    box-shadow:
+        0 0 0 1px rgba(155, 114, 207, .06),
+        0 24px 64px rgba(107, 63, 160, 0.40),
+        inset 0 1px 0 rgba(255, 255, 255, .04);
+    backdrop-filter: blur(20px);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container:hover {
+    transform: translateY(-4px);
+    box-shadow:
+        0 0 0 1px rgba(155, 114, 207, .12),
+        0 32px 80px rgba(107, 63, 160, 0.50);
+}
+
+.container h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(196, 174, 224, 0.14);
+    background: linear-gradient(130deg, #fff 0%, var(--purple-soft) 55%, var(--purple-mid) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: .01em;
+}
+
+/* ══════════════════════
+   FORM GROUPS
+   ══════════════════════ */
+.form-group {
+    margin-bottom: 22px;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: .88rem;
+    font-weight: 700;
+    color: var(--purple-soft);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: .95rem;
+    font-family: 'Nunito', sans-serif;
+    border-radius: 12px;
+    border: 1px solid rgba(196, 174, 224, 0.22);
+    background: rgba(196, 174, 224, 0.06);
+    color: var(--text-main);
+    transition: all .3s ease;
+    outline: none;
+}
+
+.form-group input::placeholder {
+    color: var(--text-dim);
+    font-size: .88rem;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--purple-mid);
+    background: rgba(155, 114, 207, 0.10);
+    box-shadow: 0 0 0 3px rgba(155, 114, 207, 0.18);
+}
+
+.form-group input:focus::placeholder {
+    opacity: 0.4;
+}
+
+/* ── PASSWORD WRAPPER ── */
+.password-wrapper {
+    position: relative;
+}
+
+.password-wrapper input {
+    padding-right: 48px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    width: 22px;
+    height: 22px;
+    user-select: none;
+    transition: all .3s ease;
+}
+
+.toggle-password:hover {
+    transform: translateY(-50%) scale(1.15);
+}
+
+.toggle-password svg {
+    width: 100%;
+    height: 100%;
+    fill: var(--text-dim);
+    transition: fill .3s ease;
+}
+
+.toggle-password:hover svg {
+    fill: var(--purple-soft);
+}
+
+.eye-open {
+    display: block;
+}
+
+.eye-closed {
+    display: none;
+}
+
+/* ── SUBMIT BUTTON ── */
+.form-group input[type="submit"] {
+    background: linear-gradient(135deg, var(--purple-deep), var(--purple-mid));
+    cursor: pointer;
+    color: white;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    border: none;
+    padding: 14px 16px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(107, 63, 160, 0.40);
+    transition: all .3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.form-group input[type="submit"]:hover {
+    background: linear-gradient(135deg, var(--purple-mid), var(--purple-soft));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(107, 63, 160, 0.55);
+}
+
+.form-group input[type="submit"]:active {
+    transform: translateY(0px);
+}
+
+/* ── SELECT ── */
+.form-group select {
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239b72cf' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 40px;
+}
+
+/* ── LOGIN LINK ── */
+center a {
+    color: var(--text-dim);
+    font-size: .9rem;
+    display: block;
+    margin-top: 20px;
+    font-weight: 500;
+}
+
+.form-group a {
+    color: var(--purple-soft);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 700;
+    display: block;
+    text-align: center;
+    margin-top: 8px;
+    transition: all .3s ease;
+    padding: 11px;
+    border-radius: 12px;
+    border: 1px solid rgba(196, 174, 224, 0.18);
+    background: rgba(155, 114, 207, 0.06);
+    letter-spacing: .04em;
+}
+
+.form-group a:hover {
+    color: white;
+    background: rgba(155, 114, 207, 0.18);
+    border-color: var(--purple-mid);
+    box-shadow: 0 4px 16px rgba(107, 63, 160, 0.30);
+    transform: translateY(-1px);
+}
+
+/* ══════════════════════
+   MESSAGES
+   ══════════════════════ */
+.message {
+    padding: 12px 15px;
+    margin: 14px 0;
+    border-radius: 10px;
+    text-align: center;
+    font-size: .9rem;
+    font-weight: 600;
+    animation: slideIn .3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message.success {
+    background: rgba(155, 114, 207, 0.15);
+    color: var(--purple-soft);
+    border: 1px solid rgba(196, 174, 224, 0.35);
+}
+
+.message.error {
+    background: rgba(255, 100, 100, 0.12);
+    color: #ff7b7b;
+    border: 1px solid rgba(255, 100, 100, 0.35);
+}
+
+.message.warning {
+    background: rgba(255, 200, 100, 0.12);
+    color: #ffc46b;
+    border: 1px solid rgba(255, 200, 100, 0.35);
+}
+
+.message.info {
+    background: rgba(100, 150, 255, 0.12);
+    color: #7aaaff;
+    border: 1px solid rgba(100, 150, 255, 0.35);
+}
+
+/* ══════════════════════
+   FOOTER
+   ══════════════════════ */
+footer {
+    position: relative;
+    z-index: 1;
+    margin-top: auto;
+    padding: 18px;
+    font-size: .82rem;
+    text-align: center;
+    color: var(--text-dim);
+    letter-spacing: .04em;
+    border-top: 1px solid rgba(180, 150, 230, 0.08);
+    background: rgba(14, 12, 24, 0.6);
+}
+
+/* ══════════════════════
+   CHROME AUTOFILL FIX
+   ══════════════════════ */
+.form-group input:-webkit-autofill,
+.form-group input:-webkit-autofill:hover,
+.form-group input:-webkit-autofill:focus,
+.form-group input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px rgba(22, 19, 42, 0.95) inset !important;
+    -webkit-text-fill-color: var(--text-main) !important;
+    transition: background-color 5000s ease-in-out 0s;
+    caret-color: var(--purple-soft);
+}
+
+/* ══════════════════════
+   RESPONSIVE — 768px
+   ══════════════════════ */
+@media (max-width: 768px) {
+    header {
+        position: relative;
+        height: auto;
+        padding: 8px 12px;
+        flex-wrap: wrap;
+        gap: 4px;
+    }
+
+    header h1 {
+        font-size: 1.55rem;
+        letter-spacing: .22em;
+        margin-top: 3px;
+        margin-bottom: 3px;
+        order: 1;
+    }
+
+    main {
+        padding: 24px 16px;
+    }
+
+    .container {
+        width: 85%;
+        /* ya 85%, 80% — jitna chahiye */
+        margin: 24px auto;
+        border-radius: 18px;
+    }
+
+    .container h2 {
+        font-size: 1.45rem;
+        margin-bottom: 24px;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+    .form-group label {
+        font-size: .8rem;
+    }
+
+    .form-group input,
+    .form-group select {
+        font-size: .9rem;
+        padding: 11px 14px;
+    }
+
+    .form-group input[type="submit"] {
+        font-size: .9rem;
+        padding: 13px;
+    }
+
+    .form-group a {
+        font-size: .9rem;
+        padding: 10px;
+    }
+
+    footer {
+        font-size: .75rem;
+        padding: 12px;
+    }
+
+    /* ══════════════════════
+   CHROME AUTOFILL FIX
+   ══════════════════════ */
+    .form-group input:-webkit-autofill,
+    .form-group input:-webkit-autofill:hover,
+    .form-group input:-webkit-autofill:focus,
+    .form-group input:-webkit-autofill:active {
+        -webkit-box-shadow: 0 0 0 30px rgba(22, 19, 42, 0.95) inset !important;
+        -webkit-text-fill-color: var(--text-main) !important;
+        transition: background-color 5000s ease-in-out 0s;
+        caret-color: var(--purple-soft);
+    }
+}
+
+/* ══════════════════════
+   RESPONSIVE — 400px
+   ══════════════════════ */
+@media (max-width: 400px) {
+    header h1 {
+        font-size: 1.3rem;
+        letter-spacing: .18em;
+    }
+
+    .container {
+        padding: 22px 16px;
+    }
+
+    .container h2 {
+        font-size: 1.25rem;
+    }
+
+    .form-group input,
+    .form-group select {
+        font-size: .85rem;
+        padding: 10px 12px;
+    }
+}

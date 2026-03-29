@@ -1,0 +1,858 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ playlist.name }} - Firepy</title>
+    <link rel="stylesheet" href="{% static 'backend/css/music_player.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{% static 'backend/images/firepy.jpg' %}" type="image/x-icon">
+
+    <style>
+        /* ══════════════════════
+            SEARCH BAR
+            ══════════════════════ */
+        .search-wrapper {
+            position: relative;
+            max-width: 560px;
+            margin: 0 auto 20px;
+            z-index: 100;
+        }
+
+        .search-bar-container {
+            display: flex;
+            align-items: center;
+            background: rgba(22, 19, 42, 0.92);
+            border: 1px solid rgba(196, 174, 224, 0.22);
+            border-radius: 16px;
+            padding: 0 14px;
+            gap: 10px;
+            transition: all .3s ease;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 20px rgba(107, 63, 160, 0.20);
+        }
+
+        .search-bar-container:focus-within {
+            border-color: var(--purple-mid);
+            box-shadow: 0 4px 28px rgba(107, 63, 160, 0.45);
+        }
+
+        .search-icon {
+            font-size: 1rem;
+            flex-shrink: 0;
+            opacity: .7;
+        }
+
+        .song-search-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-main);
+            font-family: 'Nunito', sans-serif;
+            font-size: .93em;
+            font-weight: 600;
+            padding: 13px 0;
+            caret-color: var(--purple-soft);
+        }
+
+        .song-search-input::placeholder {
+            color: var(--text-dim);
+            font-weight: 500;
+        }
+
+        .search-clear-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: .85em;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: all .2s ease;
+            display: none;
+            /* hidden until there's text */
+            flex-shrink: 0;
+        }
+
+        .search-clear-btn:hover {
+            color: var(--purple-soft);
+            background: rgba(196, 174, 224, 0.10);
+        }
+
+        /* ── DROPDOWN ── */
+        .search-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background: linear-gradient(160deg, #1e1830 0%, #110f1f 100%);
+            border: 1px solid rgba(196, 174, 224, 0.18);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(107, 63, 160, 0.45);
+            overflow: hidden;
+            display: none;
+            /* hidden by default */
+            backdrop-filter: blur(20px);
+            animation: dropIn .2s ease-out;
+            max-height: 340px;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        .search-dropdown::-webkit-scrollbar {
+            display: none;
+        }
+
+        @keyframes dropIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Each result row */
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 11px 16px;
+            cursor: pointer;
+            transition: all .25s ease;
+            border-bottom: 1px solid rgba(196, 174, 224, 0.06);
+        }
+
+        .search-result-item:last-child {
+            border-bottom: none;
+        }
+
+        .search-result-item:hover {
+            background: rgba(155, 114, 207, 0.14);
+        }
+
+        .search-result-item img {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1px solid rgba(196, 174, 224, 0.18);
+        }
+
+        .search-result-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .search-result-title {
+            font-weight: 700;
+            font-size: .88em;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+
+        /* Highlight matched letters */
+        .search-result-title mark,
+        .search-result-artist mark {
+            background: transparent;
+            color: var(--purple-soft);
+            font-weight: 800;
+        }
+
+        .search-result-artist {
+            font-size: .76em;
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .search-result-play-hint {
+            font-size: .75em;
+            color: var(--purple-mid);
+            flex-shrink: 0;
+        }
+
+        /* Not found message */
+        .search-not-found {
+            padding: 24px 16px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: .88em;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        .search-not-found span {
+            font-size: 1.6em;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* Loading state */
+        .search-loading {
+            padding: 18px 16px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: .85em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>♫ {{ playlist.name }}</h1>
+            {% if playlist.description %}
+            <p style="color: #888; margin-top: 10px;">{{ playlist.description }}</p>
+            {% endif %}
+            <center>
+                <nav>
+                    <a href="{% url 'homepage' %}">𝐁𝐀𝐂𝐊</a>
+                </nav>
+            </center>
+        </div>
+
+        {% if is_authenticated %}
+
+        <div class="search-wrapper">
+            <div class="search-bar-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="songSearchInput" class="song-search-input"
+                    placeholder="Search songs in this playlist..." autocomplete="off">
+                <button class="search-clear-btn" id="searchClearBtn" title="Clear">✕</button>
+            </div>
+
+            <!-- Dropdown results appear here -->
+            <div class="search-dropdown" id="searchDropdown">
+                <!-- Results injected by JS -->
+            </div>
+        </div>
+
+        <!-- Original playlist content for authenticated users -->
+        <div class="music-wrapper">
+            <!-- Playlist Section -->
+            <div class="playlist-section">
+                <h2>Playlist</h2>
+                <div id="playlistContainer">
+                    {% for song in songs %}
+                    <div class="song-item" data-index="{{ forloop.counter0 }}" data-song-id="{{ song.id }}">
+                        <img src="{{ song.cover_image.url }}" alt="{{ song.title }}">
+                        <div class="song-info">
+                            <div class="song-title">{{ song.title }}</div>
+                            <div class="song-artist">{{ song.artist }}</div>
+                        </div>
+                        <div class="song-duration">
+                            <span class="duration-text">▶</span>
+                            <!-- Playing Animation -->
+                            <div class="equalizer">
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Player Section -->
+            <div class="player-section">
+                <div class="now-playing">
+                    <h3>⇛ Now Playing</h3>
+                    <div class="album-art" id="albumArt">
+                        <img id="coverImage" src="{% static 'backend/images/default-cover.jpg' %}" alt="Album Cover">
+                    </div>
+                    <div class="track-info">
+                        <div class="track-header">
+                            <div class="track-title" id="trackTitle">Select a song</div>
+                            <!-- 🔥 Heart Button Next to Title -->
+                            <button class="heart-like-btn" id="likeBtn" title="Like this song">
+                                <svg class="heart-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="track-artist" id="trackArtist">Artist name</div>
+                    </div>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                    <div class="time-info">
+                        <span id="currentTime">0:00</span>
+                        <span id="totalTime">0:00</span>
+                    </div>
+                    <div class="note progress-note">
+                        ⚠️ <strong>Note:</strong> Until the song finishes playing completely, the progress bar may get
+                        reset.
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="control-btn" id="prevBtn" title="Previous">⏮</button>
+                    <button class="control-btn play-pause" id="playPauseBtn" title="Play">▶</button>
+                    <button class="control-btn" id="nextBtn" title="Next">⏭</button>
+                </div>
+            </div>
+        </div>
+
+        <audio id="audioPlayer" preload="auto"></audio>
+        <script>
+            const songsData = {{ songs_json| safe }};
+
+            let currentSongIndex = 0;
+            let isPlaying = false;
+            let isUserSeeking = false;
+
+            const audioPlayer = document.getElementById('audioPlayer');
+            const playPauseBtn = document.getElementById('playPauseBtn');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const progressBar = document.getElementById('progressBar');
+            const progress = document.getElementById('progress');
+            const currentTimeEl = document.getElementById('currentTime');
+            const totalTimeEl = document.getElementById('totalTime');
+            const trackTitle = document.getElementById('trackTitle');
+            const trackArtist = document.getElementById('trackArtist');
+            const coverImage = document.getElementById('coverImage');
+            const albumArt = document.getElementById('albumArt');
+            const songItems = document.querySelectorAll('.song-item');
+            const likeBtn = document.getElementById('likeBtn');
+
+            function savePlayerState() {
+                const state = {
+                    songIndex: currentSongIndex,
+                    currentTime: audioPlayer.currentTime,
+                    isPlaying: !audioPlayer.paused
+                };
+                localStorage.setItem('musicPlayerState', JSON.stringify(state));
+            }
+
+            function loadPlayerState() {
+                const savedState = localStorage.getItem('musicPlayerState');
+                if (savedState) {
+                    try {
+                        return JSON.parse(savedState);
+                    } catch (e) {
+                        console.log('Error loading saved state:', e);
+                        return null;
+                    }
+                }
+                return null;
+            }
+
+            // 🔥 Update equalizer display
+            function updateEqualizerDisplay() {
+                songItems.forEach((item, i) => {
+                    if (i === currentSongIndex && isPlaying) {
+                        item.classList.add('playing');
+                    } else {
+                        item.classList.remove('playing');
+                    }
+                });
+            }
+
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+
+            async function toggleLike(songId) {
+                try {
+                    const response = await fetch(`/api/like-song/${songId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    });
+                    const data = await response.json();
+
+                    if (data.status === 'liked') {
+                        likeBtn.classList.add('liked');
+                        console.log('✅ Song liked!');
+                    } else if (data.status === 'unliked') {
+                        likeBtn.classList.remove('liked');
+                        console.log('💔 Song unliked!');
+                    }
+
+                    return data;
+                } catch (error) {
+                    console.error('Error toggling like:', error);
+                }
+            }
+
+            async function checkLikeStatus(songId) {
+                try {
+                    const response = await fetch('/api/liked-songs/');
+                    const data = await response.json();
+                    const likedSongIds = data.songs.map(s => s.id);
+                    return likedSongIds.includes(songId);
+                } catch (error) {
+                    console.error('Error checking like status:', error);
+                    return false;
+                }
+            }
+
+            likeBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (songsData.length === 0 || !songsData[currentSongIndex]) return;
+
+                const songId = songsData[currentSongIndex].id;
+                await toggleLike(songId);
+
+                likeBtn.classList.add('beat');
+                setTimeout(() => likeBtn.classList.remove('beat'), 600);
+            });
+
+            async function trackSongPlay(songId) {
+                try {
+                    const response = await fetch(`/api/track-play/${songId}/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    });
+                    const data = await response.json();
+                    console.log('✅ Song play tracked:', data);
+                } catch (error) {
+                    console.error('Error tracking song play:', error);
+                }
+            }
+
+            async function loadSong(index) {
+                if (songsData.length === 0) return;
+
+                currentSongIndex = index;
+                const song = songsData[index];
+
+                audioPlayer.src = song.audio;
+                trackTitle.textContent = song.title;
+                trackArtist.textContent = song.artist;
+                coverImage.src = song.cover;
+
+                const isLiked = await checkLikeStatus(song.id);
+                if (isLiked) {
+                    likeBtn.classList.add('liked');
+                } else {
+                    likeBtn.classList.remove('liked');
+                }
+
+                savePlayerState();
+
+                audioPlayer.addEventListener('loadedmetadata', function handler() {
+                    console.log('Audio loaded, duration:', audioPlayer.duration);
+                    audioPlayer.removeEventListener('loadedmetadata', handler);
+                }, { once: true });
+
+                songItems.forEach((item, i) => {
+                    if (i === index) {
+                        item.classList.add('active');
+                        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    } else {
+                        item.classList.remove('active');
+                    }
+                });
+
+                updateEqualizerDisplay();
+            }
+
+            function playSong() {
+                audioPlayer.play();
+                isPlaying = true;
+                playPauseBtn.textContent = '⌷⌷';
+                albumArt.classList.add('playing');
+                updateEqualizerDisplay();
+                savePlayerState();
+
+                if (songsData[currentSongIndex]) {
+                    trackSongPlay(songsData[currentSongIndex].id);
+                }
+            }
+
+            function pauseSong() {
+                audioPlayer.pause();
+                isPlaying = false;
+                playPauseBtn.textContent = '▶';
+                albumArt.classList.remove('playing');
+                updateEqualizerDisplay();
+                savePlayerState();
+            }
+
+            playPauseBtn.addEventListener('click', () => {
+                if (songsData.length === 0) return;
+
+                if (!audioPlayer.src || audioPlayer.src === '') {
+                    loadSong(0);
+                    playSong();
+                } else {
+                    isPlaying ? pauseSong() : playSong();
+                }
+            });
+
+            prevBtn.addEventListener('click', () => {
+                if (songsData.length === 0) return;
+                currentSongIndex = (currentSongIndex - 1 + songsData.length) % songsData.length;
+                loadSong(currentSongIndex);
+                if (isPlaying) playSong();
+            });
+
+            nextBtn.addEventListener('click', () => {
+                if (songsData.length === 0) return;
+                currentSongIndex = (currentSongIndex + 1) % songsData.length;
+                loadSong(currentSongIndex);
+                if (isPlaying) playSong();
+            });
+
+            progressBar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+
+                if (!audioPlayer.duration || isNaN(audioPlayer.duration) || audioPlayer.duration === 0) {
+                    return;
+                }
+
+                const rect = progressBar.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                const newTime = (clickX / width) * audioPlayer.duration;
+
+                isUserSeeking = true;
+                audioPlayer.currentTime = newTime;
+
+                setTimeout(() => {
+                    isUserSeeking = false;
+                    savePlayerState();
+                }, 100);
+            });
+
+            audioPlayer.addEventListener('timeupdate', () => {
+                if (isUserSeeking) return;
+
+                const { currentTime, duration } = audioPlayer;
+
+                if (duration && !isNaN(duration) && duration > 0) {
+                    const progressPercent = (currentTime / duration) * 100;
+                    progress.style.width = `${progressPercent}%`;
+
+                    currentTimeEl.textContent = formatTime(currentTime);
+                    totalTimeEl.textContent = formatTime(duration);
+
+                    if (Math.floor(currentTime) % 2 === 0) {
+                        savePlayerState();
+                    }
+                }
+            });
+
+            audioPlayer.addEventListener('ended', () => {
+                currentSongIndex = (currentSongIndex + 1) % songsData.length;
+                loadSong(currentSongIndex);
+                playSong();
+            });
+
+            songItems.forEach((item) => {
+                item.addEventListener('click', () => {
+                    const index = parseInt(item.getAttribute('data-index'));
+                    loadSong(index);
+                    playSong();
+                });
+            });
+
+            function formatTime(seconds) {
+                if (isNaN(seconds)) return '0:00';
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+
+            if (songsData.length > 0) {
+                const savedState = loadPlayerState();
+
+                if (savedState && savedState.songIndex >= 0 && savedState.songIndex < songsData.length) {
+                    console.log('Restoring saved state:', savedState);
+                    loadSong(savedState.songIndex);
+
+                    audioPlayer.addEventListener('loadedmetadata', function handler() {
+                        audioPlayer.removeEventListener('loadedmetadata', handler);
+
+                        if (savedState.currentTime && savedState.currentTime > 0) {
+                            audioPlayer.currentTime = savedState.currentTime;
+                        }
+                    }, { once: true });
+                } else {
+                    loadSong(0);
+                }
+            }
+
+            const searchInput = document.getElementById('songSearchInput');
+            const searchDropdown = document.getElementById('searchDropdown');
+            const searchClearBtn = document.getElementById('searchClearBtn');
+
+            const PLAYLIST_ID = "{{ playlist.id }}";  // Django injects playlist ID
+
+            let searchTimeout = null;  // for debouncing keystrokes
+
+            // ── Highlight matching text in result ──
+            function highlight(text, query) {
+                if (!query) return text;
+                // Escape special regex chars so "a+" doesn't break
+                const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                const regex = new RegExp(`(${escaped})`, 'gi');
+                return text.replace(regex, '<mark>$1</mark>');
+            }
+
+            // ── Render results into dropdown ──
+            function renderResults(songs, query) {
+                searchDropdown.style.display = 'block';
+
+                if (songs.length === 0) {
+                    // Not found message
+                    searchDropdown.innerHTML = `
+            <div class="search-not-found">
+                <span>😙</span>
+                Oops...<br> 
+                Sorry not found!<br>
+                <small>Please try in another playlist.</small>
+            </div>`;
+                    return;
+                }
+
+                // Build result rows
+                searchDropdown.innerHTML = songs.map(song => `
+        <div class="search-result-item" data-song-id="${song.id}">
+            <img src="${song.cover}" alt="${song.title}" onerror="this.src='/static/backend/images/default-cover.jpg'">
+            <div class="search-result-info">
+                <div class="search-result-title">
+                    ${highlight(song.title, query)}
+                </div>
+                <div class="search-result-artist">
+                    ${highlight(song.artist, query)}
+                </div>
+            </div>
+            <span class="search-result-play-hint">▶</span>
+        </div>
+    `).join('');
+
+                // Attach click listeners to each result
+                searchDropdown.querySelectorAll('.search-result-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        const songId = parseInt(item.getAttribute('data-song-id'));
+
+                        /*
+                          Find the index of this song inside songsData
+                          (the JS array already on the page from Django context).
+                          This way we reuse the existing loadSong() / playSong() functions.
+                        */
+                        const idx = songsData.findIndex(s => s.id === songId);
+                        if (idx !== -1) {
+                            loadSong(idx);   // loads cover, title, audio src
+                            playSong();      // starts playback
+                        }
+
+                        // Close dropdown + clear search after selection
+                        closeDropdown();
+                        searchInput.value = '';
+                        searchClearBtn.style.display = 'none';
+                    });
+                });
+            }
+
+            // ── Fetch from Django API ──
+            async function fetchSearchResults(query) {
+                searchDropdown.style.display = 'block';
+                searchDropdown.innerHTML = '<div class="search-loading">Searching...</div>';
+
+                try {
+                    const url = `/api/search-songs/?q=${encodeURIComponent(query)}&playlist_id=${PLAYLIST_ID}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    renderResults(data.songs, query);
+                } catch (err) {
+                    console.error('Search error:', err);
+                    searchDropdown.innerHTML = '<div class="search-not-found"><span>⚠️</span>Something went wrong.</div>';
+                }
+            }
+
+            // ── Close dropdown ──
+            function closeDropdown() {
+                searchDropdown.style.display = 'none';
+                searchDropdown.innerHTML = '';
+            }
+
+            // ── Input event with 300ms debounce ──
+            // Debounce = waits 300ms after user stops typing before calling API
+            // This avoids spamming the backend on every single keystroke
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.trim();
+
+                // Show/hide clear button
+                searchClearBtn.style.display = query.length > 0 ? 'block' : 'none';
+
+                if (query.length === 0) {
+                    closeDropdown();
+                    return;
+                }
+
+                // Cancel previous pending search
+                clearTimeout(searchTimeout);
+
+                // Wait 300ms before actually searching
+                searchTimeout = setTimeout(() => {
+                    fetchSearchResults(query);
+                }, 300);
+            });
+
+            // ── Clear button ──
+            searchClearBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                searchClearBtn.style.display = 'none';
+                closeDropdown();
+                searchInput.focus();
+            });
+
+            // ── Close dropdown when clicking outside ──
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.search-wrapper')) {
+                    closeDropdown();
+                }
+            });
+
+            // ── Close dropdown on Escape ──
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeDropdown();
+            });
+        </script>
+        {% else %}
+        <!-- Login Required Message for Non-Authenticated Users -->
+        <div class="login-required-container">
+            <div class="login-required-content">
+                <div class="lock-icon">🔒 Login Required</div>
+                <p>Please login to enjoy this playlist and all FIREPY features!</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 🔥 Login Popup Modal (Only for Non-Authenticated Users) -->
+    {% if requires_login %}
+    <div class="playlist-login-modal" id="playlistLoginModal">
+        <div class="playlist-login-content">
+            <div class="playlist-login-header">
+                <div class="popup-logo">
+                    <img src="{% static 'backend/images/firepy.jpg' %}" alt="FIREPY Logo">
+                </div>
+                <h2>🔐 Login to Access {{ playlist.name }}</h2>
+            </div>
+            <div class="playlist-login-body">
+                <p>Unlock unlimited music and features!</p>
+                <ul class="benefits-list">
+                    <li>🎵 Listen to unlimited songs</li>
+                    <li>❤️ Create personalized playlists</li>
+                    <li>📜 Track your listening history</li>
+                    <li>🎯 Get personalized recommendations</li>
+                </ul>
+            </div>
+            <div class="playlist-login-footer">
+                <a href="{% url 'user_login' %}" class="btn-playlist-login">
+                    Login Now
+                </a>
+                <a href="{% url 'ogregister' %}" class="btn-playlist-signup">
+                    Create Account
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Login popup variables
+        const playlistLoginModal = document.getElementById('playlistLoginModal');
+        let popupInterval;
+
+        // Function to show login popup
+        function showLoginPopup() {
+            playlistLoginModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            console.log('🔥 Popup opened');
+        }
+
+        // Function to hide login popup
+        function hideLoginPopup() {
+            playlistLoginModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            console.log('❌ Popup closed');
+
+            // ✅ IMPORTANT: Restart timer after closing
+            startPopupTimer();
+        }
+
+        // Function to start the popup timer
+        function startPopupTimer() {
+            // Clear any existing interval
+            if (popupInterval) {
+                clearInterval(popupInterval);
+                console.log('🔄 Timer cleared');
+            }
+
+            // Show popup every 6 seconds
+            popupInterval = setInterval(() => {
+                console.log('⏰ 6 seconds passed, showing popup again...');
+                showLoginPopup();
+            }, 6000);
+
+            console.log('⏱️ Timer started - popup will appear every 6 seconds');
+        }
+
+        // Show popup immediately when page loads (after 1 second)
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                showLoginPopup();
+                // Start the recurring timer
+                startPopupTimer();
+            }, 1000);
+        });
+
+        // Close modal when clicking outside
+        playlistLoginModal.addEventListener('click', (e) => {
+            if (e.target === playlistLoginModal) {
+                hideLoginPopup();
+            }
+        });
+
+        // Close with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && playlistLoginModal.style.display === 'flex') {
+                hideLoginPopup();
+            }
+        });
+    </script>
+    {% endif %}
+</body>
+
+</html>

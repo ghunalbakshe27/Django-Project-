@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F I R E P Y - About Us</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{% static 'backend/images/firepy.jpg' %}" type="image/x-icon">
+    <link rel="stylesheet" href="{% static 'backend/css/aboutus.css' %}">
+</head>
+
+<body>
+    <header>
+        <h1>FIREPY</h1>
+        <nav><a href="{% url 'homepage' %}">𝐁𝐀𝐂𝐊</a></nav>
+    </header>
+
+    <div class="container">
+        <section class="about-section" style="font-family: 'poppins', sans-serif;">
+            <h2>Developers</h2>
+            <h3 style="font-size: 25px; font-weight: 400; font-family: 'Times New Roman', serif;">Firepy Groups
+            </h3>
+
+            <h2>Our Mission</h2>
+            <h3>Welcome to <b>F I R E P Y</b>, your ultimate destination for discovering the universal language of
+                music. We are dedicated to bringing you a curated selection of sounds that transcend genres and connect
+                with the soul.<br><br>
+                Our mission is to foster a community where music lovers can explore new sounds, share passions, and
+                celebrate every beat. With a team of enthusiasts, we strive to provide insightful reviews and the latest
+                news in the music scene. We believe music has the power to inspire, heal, and unite.</h3>
+        </section>
+
+        <section class="contact-section" style="font-family: 'poppins', sans-serif;">
+            <h2>Contact Us</h2>
+            <p>Have questions? Reach out to us at:</p>
+
+            <div class="mail-container">
+                <a href="mailto:firepy.song@gmail.com" class="email-link">
+                    <i class="fa-solid fa-envelope-open-text"></i>
+                    <span>firepy.song@gmail.com</span>
+                </a>
+            </div>
+
+            <p>Connect with our community:</p>
+            <div class="social-icons">
+                <a href="https://www.instagram.com/firepy_pg" target="_blank" class="icon-box instagram"
+                    title="Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://www.facebook.com" target="_blank" class="icon-box facebook" title="Facebook">
+                    <i class="fa-brands fa-facebook-f"></i>
+                </a>
+                <a href="https://twitter.com" target="_blank" class="icon-box twitter" title="X (Twitter)">
+                    <i class="fa-brands fa-x-twitter"></i>
+                </a>
+                <a href="https://linkedin.com" target="_blank" class="icon-box linkedin" title="LinkedIn">
+                    <i class="fa-brands fa-linkedin-in"></i>
+                </a>
+                <a href="https://github.com" target="_blank" class="icon-box github" title="GitHub">
+                    <i class="fa-brands fa-github"></i>
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 F I R E P Y. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>
