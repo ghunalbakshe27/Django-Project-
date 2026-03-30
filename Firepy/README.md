@@ -5,7 +5,7 @@
 
 <!-- Typing Animation -->
 <a href="https://git.io/typing-svg">
-  <img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=22&pause=1000&color=FF6B35&center=true&vCenter=true&width=600&lines=🎵+Stream+Music+Like+Never+Before;🔥+Built+with+Django+%2B+MySQL;🎨+Glassmorphism+UI+Design;🚀+Full-Stack+Music+Platform" alt="Typing SVG" />
+  <img src="https://readme-typing-svg.herokuapp.com?font=Orbitron&weight=700&size=22&pause=1000&color=FF6B35&center=true&vCenter=true&width=600&lines=🎵+Streaming+Music;🔥+Built+with+Django+%2B+MySQL;🎨+Responsive+UI;🚀+Full-Stack+Music+Platform" alt="Typing SVG" />
 </a>
 
 <br/>
@@ -14,8 +14,8 @@
 <img src="https://img.shields.io/badge/Django-092E20?style=for-the-badge&logo=django&logoColor=white"/>
 <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white"/>
 <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black"/>
-<img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white"/>
-<img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white"/>
+<img src="https://img.shields.io/badge/HTML-E34F26?style=for-the-badge&logo=html5&logoColor=white"/>
+<img src="https://img.shields.io/badge/CSS-1572B6?style=for-the-badge&logo=css3&logoColor=white"/>
 
 <br/>
 
@@ -35,7 +35,7 @@
 
 </div>
 
-> **FIREPY** is a full-stack music streaming web platform built on **Django + MySQL**, designed for music lovers who want more than just a playlist. With a deep purple glassmorphism UI, live search, audio streaming, liked songs, recently played history, and artist profiles — FIREPY delivers a premium experience without the premium price tag.
+> **FIREPY** is a full-stack music streaming web platform built on **Django + MySQL**, designed for music lovers who want more than just a playlist. With a deep purple  UI, live search, audio streaming, liked songs, recently played history, and artist profiles — FIREPY delivers a premium experience without the premium price tag.
 
 ---
 
@@ -95,12 +95,7 @@
 │   │
 │   ├── 📁 templates/           ← HTML pages
 │   │   ├── 🏠 homepage.html
-│   │   ├── 🎵 generes.html
-│   │   ├── 🎤 arjit.html
-│   │   ├── 🎶 phonk.html
-│   │   ├── 🥁 punjabi hits.html
-│   │   └── ... (13 more pages)
-│   │
+│   │   ├── 🎵 playlist.html (Dynamically playlists)
 │   └── 📁 migrations/
 │
 ├── 🧪 manage.py
@@ -148,7 +143,7 @@ pip install django mysqlclient sendgrid
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'firepy_db',
+        'NAME': 'your_db_name',
         'USER': 'your_user',
         'PASSWORD': 'your_password',
         'HOST': 'localhost',
@@ -166,7 +161,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-🚀 Open **http://127.0.0.1:8000** and enjoy the fire!
+
 
 ---
 
@@ -182,9 +177,9 @@ python manage.py runserver
 |-------|-----------|
 | 🖥️ **Backend** | Django 4.x (Python) |
 | 🗄️ **Database** | MySQL |
-| 🎨 **Frontend** | HTML5, CSS3 (Glassmorphism), Vanilla JS |
+| 🎨 **Frontend** | HTML, CSS,  JS |
 | 📧 **Email** | SendGrid API |
-| 🎵 **Audio** | HTML5 `<audio>` API |
+| 🎵 **Audio** | HTML `<audio>` API |
 | 🔍 **Search** | Debounced Fetch API |
 | 📱 **Mobile UI** | Responsive CSS, Bottom-Sheet Modal |
 
