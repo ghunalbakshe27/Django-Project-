@@ -33,7 +33,7 @@
             <a href="#" class="nav-tab active" data-filter="all">Home</a>
             <a href="#" class="nav-tab" data-filter="artists">Artists</a>
             <a href="#" class="nav-tab" data-filter="top_charts">Top Charts</a>
-            <a href="#" class="nav-tab" data-filter="playlist1,playlist2,New_section">Genres</a>
+            <a href="#" class="nav-tab" data-filter="playlist2">Genres</a>
         </nav>
 
         <div class="header-right">
@@ -280,7 +280,7 @@
                             src="{% if playlist.cover_image %}{{ playlist.cover_image.url }}{% else %}{% static 'backend/images/default-cover.jpg' %}{% endif %}"
                             alt="{{ playlist.name }}">
                         <div class="track-info">
-                            <span class="track-name">{{ playlist.name }}</span>
+                            <span class="wave-name">{{ playlist.name }}</span>
 
                         </div>
                         <svg class="track-arrow" viewBox="0 0 24 24">
@@ -348,9 +348,8 @@
                                 <div class="wave-overlay"></div>
                                 <span class="wave-num">{{ forloop.counter|stringformat:"02d" }}</span>
                             </div>
-                            <div class="wave-info">
+                            <div class="card-info">
                                 <h3>{{ playlist.name }}</h3>
-
                             </div>
                         </a>
                     </div>
@@ -369,6 +368,10 @@
                     <h2>Industry Pulse</h2>
                     <p class="section-sub">What's moving the world of music right now</p>
                 </div>
+                <div class="arrow-controls">
+                    <button class="mini-arrow mini-left" aria-label="prev">‹</button>
+                    <button class="mini-arrow mini-right" aria-label="next">›</button>
+                </div>
             </div>
             <div class="grid-wrapper">
 
@@ -381,8 +384,7 @@
                                     alt="{{ playlist.name }}">
                                 <div class="pulse-overlay"></div>
                             </div>
-                            <div class="pulse-info">
-                                <span class="pulse-cat">NEW RELEASE</span>
+                            <div class="card-info">
                                 <h3>{{ playlist.name }}</h3>
                             </div>
                         </a>

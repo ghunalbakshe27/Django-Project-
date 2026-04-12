@@ -172,5 +172,7 @@ def send_welcome_email(user_email, user_name):
         print(f"✅ Welcome email sent to {user_email}")
         return True
     except Exception as e:
+        import traceback
+        traceback.print_exc()  # full error terminal mein aayega
         print(f"❌ Email sending failed: {str(e)}")
         return False

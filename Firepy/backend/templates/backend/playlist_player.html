@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="{% static 'backend/css/music_player.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins&family=Inter&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800&family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
     <link rel="shortcut icon" href="{% static 'backend/images/firepy.jpg' %}" type="image/x-icon">
 
     <style>
@@ -255,7 +259,6 @@
                         </div>
                         <div class="song-duration">
                             <span class="duration-text">▶</span>
-                            <!-- Playing Animation -->
                             <div class="equalizer">
                                 <div class="bar"></div>
                                 <div class="bar"></div>
@@ -271,7 +274,35 @@
             <!-- Player Section -->
             <div class="player-section">
                 <div class="now-playing">
-                    <h3>⇛ Now Playing</h3>
+                    <div style="display:flex; align-items:center; justify-content:center; position:relative;">
+                        <h3>⇛ Now Playing</h3>
+                        <!-- ⋮ Player three-dot menu -->
+                        <div class="song-options-menu" id="playerOptionsMenu" style="position:absolute; right:0;">
+                            <button class="song-options-btn" title="Options">⋮</button>
+                            <div class="song-options-dropdown">
+                                <div class="song-option-item" data-action="download-current">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                        <polyline points="7 10 12 15 17 10" />
+                                        <line x1="12" y1="15" x2="12" y2="3" />
+                                    </svg>
+                                    Download Song
+                                </div>
+                                <div class="song-option-item" data-action="share-current">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <circle cx="18" cy="5" r="3" />
+                                        <circle cx="6" cy="12" r="3" />
+                                        <circle cx="18" cy="19" r="3" />
+                                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                                    </svg>
+                                    Share Song
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="album-art" id="albumArt">
                         <img id="coverImage" src="{% static 'backend/images/default-cover.jpg' %}" alt="Album Cover">
                     </div>
@@ -312,7 +343,53 @@
             </div>
         </div>
 
+        <!-- ══ CTA BANNER ══ -->
+        <section class="cta-banner">
+            <div class="cta-inner">
+                <p class="cta-eyebrow">Join the collective</p>
+                <h2 class="cta-title">
+                    AWAKEN YOUR<br><em>INNER RAGA</em>
+                </h2>
+                <p class="cta-sub">Join the community redefining the sound of the subcontinent. Exclusive drops,
+                    heritage
+                    archives, and the future of Indian rhythm.</p>
+                <div class="cta-btns">
+                    {% if is_authenticated %}
+                    <button class="btn-primary"
+                        onclick="document.querySelector('.container').scrollIntoView({behavior:'smooth'})">
+                        <span>Explore Now</span>
+                    </button>
+                    {% else %}
+                    <a href="{% url 'ogregister' %}" class="btn-primary">
+                        <span>Join the Collective</span>
+                    </a>
+                    <a href="{% url 'user_login' %}" class="btn-ghost">View Membership</a>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ FOOTER ══ -->
+        <footer>
+            <div class="footer-inner">
+                <div class="footer-brand">
+                    <h3>F I R E P Y</h3>
+                    <p>The pulse of the deep.<br>Stream ancient roots to electric neon.</p>
+                </div>
+                <div class="footer-links">
+                    <a href="{% url 'aboutus' %}">About Us</a>
+                    {% if not is_authenticated %}
+                    <a href="{% url 'user_login' %}">Login</a>
+                    <a href="{% url 'ogregister' %}">Register</a>
+                    {% endif %}
+                </div>
+                <p class="footer-copy">&copy; 2026 F I R E P Y. All Rights Reserved.</p>
+            </div>
+        </footer>
+
         <audio id="audioPlayer" preload="auto"></audio>
+
+        <!-- This main script tag of the page -->
         <script>
             const songsData = {{ songs_json| safe }};
 
@@ -748,6 +825,75 @@
             searchInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') closeDropdown();
             });
+
+            // ══ THREE-DOT MENU LOGIC ══
+            document.addEventListener('click', (e) => {
+                const btn = e.target.closest('.song-options-btn');
+                const item = e.target.closest('.song-option-item');
+
+                if (btn) {
+                    e.stopPropagation();
+                    const dropdown = btn.nextElementSibling;
+                    // Close all other open dropdowns first
+                    document.querySelectorAll('.song-options-dropdown.open').forEach(d => {
+                        if (d !== dropdown) d.classList.remove('open');
+                    });
+                    dropdown.classList.toggle('open');
+                    return;
+                }
+
+                if (item) {
+                    e.stopPropagation();
+                    const action = item.getAttribute('data-action');
+                    if (action === 'download-current') {
+                        if (!songsData[currentSongIndex]) return;
+                        const song = songsData[currentSongIndex];
+                        const cleanTitle = song.title.replace(/_/g, ' ');
+
+                        // Fetch as blob then trigger download
+                        fetch(song.audio)
+                            .then(res => res.blob())
+                            .then(blob => {
+                                const blobUrl = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = blobUrl;
+                                a.download = cleanTitle + '.mp3';
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(blobUrl);
+                            })
+                            .catch(() => {
+                                alert('❌ Download failed. Try again!');
+                            });
+                    }
+
+                    if (action === 'share-current') {
+                        const song = songsData[currentSongIndex];
+                        const baseUrl = window.location.origin + window.location.pathname;
+                        const shareUrl = `${baseUrl}?song=${encodeURIComponent(song.title)}`;
+
+                        if (navigator.share) {
+                            navigator.share({
+                                title: song.title + ' — FIREPY',
+                                text: `🔥 Listen to "${song.title}" on FIREPY!`,
+                                url: shareUrl
+                            }).catch(() => { });
+                        } else {
+                            navigator.clipboard.writeText(shareUrl).then(() => {
+                                alert('🔗 Link copied to clipboard!');
+                            });
+                        }
+                    }
+
+                    // Close dropdown after action
+                    item.closest('.song-options-dropdown').classList.remove('open');
+                    return;
+                }
+
+                // Click anywhere outside → close all dropdowns
+                document.querySelectorAll('.song-options-dropdown.open').forEach(d => d.classList.remove('open'));
+            });
         </script>
         {% else %}
         <!-- Login Required Message for Non-Authenticated Users -->
@@ -759,6 +905,8 @@
         </div>
         {% endif %}
     </div>
+
+
 
     <!-- 🔥 Login Popup Modal (Only for Non-Authenticated Users) -->
     {% if requires_login %}

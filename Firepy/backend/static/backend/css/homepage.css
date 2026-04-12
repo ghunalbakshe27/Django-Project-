@@ -1501,7 +1501,7 @@ header h1 {
     min-width: 0;
 }
 
-.track-name {
+.wave-name {
     display: block;
     font-size: .88rem;
     font-weight: 600;
@@ -1661,7 +1661,7 @@ header h1 {
 }
 
 .artist-name {
-    font-family: 'Syne', sans-serif;
+    font-family: poppins, sans-serif;
     font-size: 1.05rem;
     font-weight: 800;
     color: #fff;
@@ -2916,7 +2916,7 @@ footer {
         height: 38px;
     }
 
-    .track-name {
+    .wave-name {
         font-size: .82rem;
     }
 

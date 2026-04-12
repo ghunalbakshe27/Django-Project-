@@ -380,7 +380,7 @@ def user_register(request):
             user.save()
 
             # 🔥 SEND WELCOME EMAIL
-            send_welcome_email(email, first_name or username)
+            send_welcome_email(email, fullname or username)
             
             messages.success(request, 'Registration successful! Please login.')
             return redirect('user_login')

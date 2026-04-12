@@ -14,7 +14,6 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -98,7 +97,7 @@ WSGI_APPLICATION = 'firepy.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.mysql',  # Use 'django.db.backends.sqlite3' for SQLite
                     'NAME': os.getenv('DB_NAME'),# Add your database name here
                 'USER': os.getenv('DB_USER'),# Add your database user here
                 'PASSWORD': os.getenv('DB_PASSWORD', os.getenv('DB_PASSword')),# Add your database password here (fallback for case variations)
@@ -170,8 +169,10 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_PORT = 587
-EMAIL_USE_TLS = True                    
+EMAIL_USE_TLS = True  
+EMAIL_USE_SSL = False                   
 EMAIL_HOST_USER = 'apikey'  # this would exactly "apikey" same
 EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY')  # ← your API key from .env file
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'firepy.song@gmail.com')  # ← use verified sender or set via .env
 
+EMAIL_TIMEOUT = 30 
