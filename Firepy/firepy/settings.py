@@ -173,6 +173,6 @@ EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False                   
 EMAIL_HOST_USER = 'apikey'  # this would exactly "apikey" same
 EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY')  # ← your API key from .env file
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'firepy.song@gmail.com')  # ← use verified sender or set via .env
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')  # ← use verified sender or set via .env
 
 EMAIL_TIMEOUT = 30 
