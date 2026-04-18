@@ -176,3 +176,164 @@ def send_welcome_email(user_email, user_name):
         traceback.print_exc()  # full error terminal mein aayega
         print(f"❌ Email sending failed: {str(e)}")
         return False
+    
+def send_otp_email(user_email, user_name, otp):
+    """
+    Send OTP email for password reset
+    """
+    subject = '🔐 FIREPY - Password Reset OTP'
+    
+    html_message = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <style>
+            body {{
+                font-family: Arial, sans-serif;
+                background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+                padding: 20px;
+                margin: 0;
+            }}
+            .container {{
+                max-width: 600px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 20px;
+                overflow: hidden;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            }}
+            .header {{
+                background: linear-gradient(135deg, #9d7cbf 0%, #7952a8 100%);
+                padding: 40px 20px;
+                text-align: center;
+                color: white;
+            }}
+            .header h1 {{
+                margin: 0;
+                font-size: 2.5em;
+                text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            }}
+            .content {{
+                padding: 40px 30px;
+                color: #333;
+            }}
+            .content h2 {{
+                color: #7952a8;
+                margin-top: 0;
+            }}
+            .content p {{
+                font-size: 1.1em;
+                line-height: 1.6;
+                color: #666;
+            }}
+            .otp-box {{
+                background: linear-gradient(135deg, #f5f0fb, #ede0ff);
+                border: 2px dashed #9d7cbf;
+                border-radius: 16px;
+                text-align: center;
+                padding: 30px 20px;
+                margin: 28px 0;
+            }}
+            .otp-label {{
+                font-size: 0.95em;
+                color: #7952a8;
+                font-weight: 600;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                margin-bottom: 12px;
+            }}
+            .otp-code {{
+                font-size: 2.8em;
+                font-weight: 900;
+                letter-spacing: 0.25em;
+                color: #5c35a8;
+                font-family: 'Courier New', monospace;
+            }}
+            .otp-expiry {{
+                margin-top: 12px;
+                font-size: 0.85em;
+                color: #a07cc5;
+            }}
+            .warning-box {{
+                background: #fff5f5;
+                border-left: 4px solid #ff6b6b;
+                border-radius: 8px;
+                padding: 14px 18px;
+                margin: 20px 0;
+                font-size: 0.92em;
+                color: #c0392b;
+            }}
+            .footer {{
+                background: #1a1a1a;
+                color: #c8b3e6;
+                text-align: center;
+                padding: 20px;
+                font-size: 0.9em;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>♫ F I R E P Y ♫</h1>
+                <p style="margin: 10px 0 0 0; font-size: 1.2em;">Password Reset Request</p>
+            </div>
+
+            <div class="content">
+                <h2>Hey, {user_name}! 🔐</h2>
+                <p>
+                    We received a request to reset your <strong>FIREPY</strong> account password.
+                    Use the OTP below to proceed. This code is valid for <strong>10 minutes</strong>.
+                </p>
+
+                <div class="otp-box">
+                    <div class="otp-label">Your One-Time Password</div>
+                    <div class="otp-code">{otp}</div>
+                    <div class="otp-expiry">⏱ Expires in 10 minutes</div>
+                </div>
+
+                <div class="warning-box">
+                    ⚠️ If you did not request a password reset, please ignore this email.
+                    Your account remains secure.
+                </div>
+
+                <p style="margin-top: 30px;">
+                    Stay secure! 🎶<br>
+                    <strong>The FIREPY Team</strong>
+                </p>
+            </div>
+
+            <div class="footer">
+                <p>© 2026 FIREPY. All Rights Reserved.</p>
+                <p>You're receiving this because a reset was requested for your account.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+
+    plain_message = f"""
+    Hey {user_name},
+
+    Your FIREPY password reset OTP is: {otp}
+    This OTP expires in 10 minutes.
+
+    If you didn't request this, ignore this email.
+
+    - The FIREPY Team
+    """
+
+    try:
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user_email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        print(f"✅ OTP email sent to {user_email}")
+        return True
+    except Exception as e:
+        print(f"❌ OTP email failed: {str(e)}")
+        return False

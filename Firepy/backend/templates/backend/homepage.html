@@ -67,8 +67,21 @@
             {% else %}
             <a href="{% url 'user_login' %}" class="signin-btn">Sign In</a>
             {% endif %}
+
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
         </div>
+
     </header>
+
+    <!-- Header  bar for mobile responsive -->
+    <div class="mobile-nav-drawer" id="mobileNavDrawer">
+        <a href="#" class="mob-nav-tab active" data-filter="all">Home</a>
+        <a href="#" class="mob-nav-tab" data-filter="artists">Artists</a>
+        <a href="#" class="mob-nav-tab" data-filter="top_charts">Top Charts</a>
+        <a href="#" class="mob-nav-tab" data-filter="playlist2">Genres</a>
+    </div>
 
     <!-- Overlay -->
     <div class="overlay" id="overlay"></div>
@@ -579,6 +592,8 @@
                 }
             }
 
+            window.applyFilter = applyFilter;
+
             // Page load pe hash se tab restore karo (scroll nahi, sirf filter)
             const savedFilter = window.location.hash.replace('#', '') || 'all';
             applyFilter(savedFilter, false);
@@ -674,6 +689,53 @@
                     const grid = btn.closest('.section').querySelector('.featured-artists-grid, .grid');
                     if (grid) grid.scrollBy({ left: 300, behavior: 'smooth' });
                 });
+            });
+        })();
+    </script>
+
+    // Mobile Hamburger Menu Logic
+    <script>
+        // ── HAMBURGER MENU ──
+        (function () {
+            const hamBtn = document.getElementById('hamburgerBtn');
+            const drawer = document.getElementById('mobileNavDrawer');
+            if (!hamBtn || !drawer) return;
+
+            hamBtn.addEventListener('click', () => {
+                const isOpen = drawer.classList.toggle('open');
+                hamBtn.classList.toggle('open', isOpen);
+            });
+
+            // CLick on the mobile drawer tabs to apply filter and close drawer
+            drawer.querySelectorAll('.mob-nav-tab').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const filter = tab.dataset.filter;
+
+                    // Active state update
+                    drawer.querySelectorAll('.mob-nav-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    // also update the main nav tabs active state
+                    document.querySelectorAll('.nav-tab').forEach(t => {
+                        t.classList.toggle('active', t.dataset.filter === filter);
+                    });
+
+
+                    if (typeof applyFilter === 'function') applyFilter(filter, true);
+
+                    // Drawer band karo
+                    drawer.classList.remove('open');
+                    hamBtn.classList.remove('open');
+                });
+            });
+
+            // Bahar click karne pe band karo
+            document.addEventListener('click', (e) => {
+                if (!hamBtn.contains(e.target) && !drawer.contains(e.target)) {
+                    drawer.classList.remove('open');
+                    hamBtn.classList.remove('open');
+                }
             });
         })();
     </script>

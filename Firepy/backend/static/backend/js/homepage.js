@@ -98,28 +98,133 @@ document.getElementById("personalDetails").addEventListener("click", async () =>
         const data = await response.json();
 
         content.innerHTML = `
-            <div class="detail-item">
-                <div class="detail-label">Full Name</div>
-                <div class="detail-value">${data.full_name}</div>
+    <div class="detail-item">
+        <div class="detail-label">Full Name</div>
+        <div class="detail-value">${data.full_name}</div>
+    </div>
+
+    <div class="detail-item">
+        <div class="detail-label">Username</div>
+        <div class="detail-value" style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+            <span id="usernameDisplay">@${data.username}</span>
+            <button onclick="showUsernameEdit()" id="editUsernameBtn"
+                style="background: rgba(139,92,246,.15); border: 1px solid rgba(139,92,246,.35);
+                       color: #c4b5fd; border-radius: 8px; padding: 4px 12px;
+                       font-size: .75rem; font-weight: 700; cursor: pointer;
+                       transition: all .2s; letter-spacing: .04em;">
+                Change
+            </button>
+        </div>
+        <!-- Edit Form — hidden by default -->
+        <div id="usernameEditForm" style="display:none; margin-top: 12px;">
+            <div style="display:flex; gap:8px; align-items:center;">
+                <input type="text" id="newUsernameInput"
+                    placeholder="New username"
+                    maxlength="20"
+                    value="${data.username}"
+                    style="flex:1; background: rgba(196,174,224,.06);
+                           border: 1px solid rgba(139,92,246,.35);
+                           border-radius: 8px; padding: 8px 12px;
+                           color: #ede9fe; font-size: .85rem;
+                           outline: none; font-family: 'DM Sans', sans-serif;">
+                <button onclick="saveUsername()"
+                    style="background: linear-gradient(135deg, #5c35a8, #8b5cf6);
+                           border: none; color: #fff; border-radius: 8px;
+                           padding: 8px 16px; font-size: .82rem;
+                           font-weight: 700; cursor: pointer;">
+                    Save
+                </button>
+                <button onclick="cancelUsernameEdit()"
+                    style="background: rgba(196,174,224,.08);
+                           border: 1px solid rgba(196,174,224,.2);
+                           color: #7c7097; border-radius: 8px;
+                           padding: 8px 12px; font-size: .82rem;
+                           cursor: pointer;">
+                    Cancel
+                </button>
             </div>
-            <div class="detail-item">
-                <div class="detail-label">Username</div>
-                <div class="detail-value">@${data.username}</div>
-            </div>
-            <div class="detail-item">
-                <div class="detail-label">Email Address</div>
-                <div class="detail-value">${data.email}</div>
-            </div>
-            <div class="detail-item">
-                <div class="detail-label">Member Since</div>
-                <div class="detail-value">${data.date_joined}</div>
-            </div>
-        `;
+            <p id="usernameMsg" style="font-size:.78rem; margin-top:8px; display:none;"></p>
+        </div>
+    </div>
+
+    <div class="detail-item">
+        <div class="detail-label">Email Address</div>
+        <div class="detail-value">${data.email}</div>
+    </div>
+    <div class="detail-item">
+        <div class="detail-label">Member Since</div>
+        <div class="detail-value">${data.date_joined}</div>
+    </div>
+`;
     } catch (error) {
         console.error("Error fetching personal details:", error);
         content.innerHTML = '<div class="empty-state"><p>Failed to load personal details</p></div>';
     }
 });
+
+
+function showUsernameEdit() {
+    document.getElementById('usernameEditForm').style.display = 'block';
+    document.getElementById('editUsernameBtn').style.display = 'none';
+    document.getElementById('newUsernameInput').focus();
+}
+
+function cancelUsernameEdit() {
+    document.getElementById('usernameEditForm').style.display = 'none';
+    document.getElementById('editUsernameBtn').style.display = 'inline-block';
+    document.getElementById('usernameMsg').style.display = 'none';
+}
+
+async function saveUsername() {
+    const newUsername = document.getElementById('newUsernameInput').value.trim();
+    const msg = document.getElementById('usernameMsg');
+
+    if (!newUsername) return;
+
+    try {
+        const response = await fetch('/api/change-username/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ username: newUsername })
+        });
+
+        const data = await response.json();
+
+        msg.style.display = 'block';
+
+        if (data.status === 'success') {
+            msg.style.color = '#4ade80';
+            msg.textContent = '✅ ' + data.message;
+
+            // UI update karo
+            document.getElementById('usernameDisplay').textContent = '@' + data.new_username;
+
+            // Header avatar initial bhi update karo
+            document.querySelectorAll('.avatar-initials, .avatar-initials-lg').forEach(el => {
+                el.textContent = data.new_username.charAt(0).toUpperCase();
+            });
+
+            // Sidebar username bhi update karo
+            const sidebarUsername = document.querySelector('.sidebar-username');
+            if (sidebarUsername) sidebarUsername.textContent = data.new_username;
+
+            // 2 sec baad form band karo
+            setTimeout(() => cancelUsernameEdit(), 2000);
+
+        } else {
+            msg.style.color = '#ff6b6b';
+            msg.textContent = '❌ ' + data.message;
+        }
+
+    } catch (error) {
+        msg.style.display = 'block';
+        msg.style.color = '#ff6b6b';
+        msg.textContent = '❌ Something went wrong!';
+    }
+}
 
 
 // ========== RECENT HISTORY - UPDATED ==========

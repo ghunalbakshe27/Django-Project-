@@ -27,6 +27,14 @@ urlpatterns = [
     # 🔥 NEW: Rename Liked Songs Playlist
     path('api/rename-liked-playlist/', views.rename_liked_playlist, name='rename_liked_playlist'),
 
+    # 🔥 NEW: Change Username Endpoint
+    path('api/change-username/', views.change_username, name='change_username'),
+
+    # Password Reset Flow
+    
+    path('forgot-password/', views.forgot_password, name='forgot_password'),
+    path('verify-otp/', views.verify_otp, name='verify_otp'),
+    path('reset-password/', views.reset_password, name='reset_password'),
 
     path('api/like-song/<int:song_id>/', views.toggle_like_song, name='toggle_like_song'),
     path('api/track-play/<int:song_id>/', views.track_song_play, name='track_song_play'),

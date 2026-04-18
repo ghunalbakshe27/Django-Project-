@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F I R E P Y - Verify OTP</title>
+    <link rel="stylesheet" href="{% static 'backend/css/style.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{% static 'backend/images/firepy.jpg' %}" type="image/x-icon">
+</head>
+
+<body>
+    <header>
+        <h1>F I R E P Y</h1>
+    </header>
+
+    <div class="container">
+        <h2>Enter OTP</h2>
+
+        <p style="text-align:center; color: var(--text-dim); margin-bottom: 24px; font-size: .9rem;">
+            OTP sent to your registered email. Valid for 10 minutes.
+        </p>
+
+        {% if messages %}
+        {% for message in messages %}
+        <p class="message {{ message.tags }}">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <div class="input-float">
+                    <input type="text" id="otp" name="otp" placeholder=" " maxlength="6" autocomplete="off" required>
+                    <label for="otp">6-Digit OTP</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Verify OTP">
+            </div>
+        </form>
+
+        <div class="register-link">
+            <p>Didn't get OTP? <a href="{% url 'forgot_password' %}">Resend</a></p>
+        </div>
+    </div>
+
+    <footer>&copy; 2026 F I R E P Y. All rights reserved.</footer>
+</body>
+
+</html>

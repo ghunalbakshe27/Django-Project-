@@ -10,6 +10,9 @@ from django.utils import timezone
 from backend.utils import send_welcome_email
 from django.db.models import Q
 import json
+import random
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 from firepy import settings
 
@@ -407,3 +410,136 @@ def test_email(request):
         return JsonResponse({'status': 'success', 'message': 'Test email sent!'})
     else:
         return JsonResponse({'status': 'error', 'message': 'Email failed!'})
+    
+# 🔥 Forgot Password — email lo, OTP bhejo
+def forgot_password(request):
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, 'No account found with this email.')
+            return render(request, 'backend/forgot_password.html')
+
+        # OTP generate karo
+        otp = str(random.randint(100000, 999999))
+        expiry = (timezone.now() + timedelta(minutes=10)).isoformat()
+
+        # Session mein store karo
+        request.session['reset_otp'] = otp
+        request.session['reset_otp_expiry'] = expiry
+        request.session['reset_email'] = email
+
+        # Email bhejo
+        from backend.utils import send_otp_email
+        send_otp_email(email, user.username, otp)
+
+        messages.success(request, 'OTP sent to your registered email!')
+        return redirect('verify_otp')
+
+    return render(request, 'backend/forgot_password.html')
+
+
+# 🔥 OTP Verify
+def verify_otp(request):
+    if request.method == 'POST':
+        entered_otp = request.POST.get('otp', '').strip()
+        saved_otp = request.session.get('reset_otp')
+        expiry_str = request.session.get('reset_otp_expiry')
+
+        if not saved_otp or not expiry_str:
+            messages.error(request, 'Session expired. Please try again.')
+            return redirect('forgot_password')
+
+        # Expiry check
+        expiry = datetime.fromisoformat(expiry_str)
+        if timezone.now() > expiry:
+            messages.error(request, 'OTP expired. Please request a new one.')
+            return redirect('forgot_password')
+
+        if entered_otp == saved_otp:
+            request.session['otp_verified'] = True
+            return redirect('reset_password')
+        else:
+            messages.error(request, 'Invalid OTP. Please try again.')
+
+    return render(request, 'backend/verify_otp.html')
+
+
+# 🔥 Reset Password
+def reset_password(request):
+    if not request.session.get('otp_verified'):
+        messages.error(request, 'Please verify OTP first.')
+        return redirect('forgot_password')
+
+    if request.method == 'POST':
+        new_pass = request.POST.get('new_password', '')
+        confirm_pass = request.POST.get('confirm_password', '')
+
+        if new_pass != confirm_pass:
+            messages.error(request, 'Passwords do not match!')
+            return render(request, 'backend/reset_password.html')
+
+        if len(new_pass) < 6:
+            messages.error(request, 'Password must be at least 6 characters.')
+            return render(request, 'backend/reset_password.html')
+
+        email = request.session.get('reset_email')
+        try:
+            user = User.objects.get(email=email)
+            user.set_password(new_pass)
+            user.save()
+
+            # Session saaf karo
+            for key in ['reset_otp', 'reset_otp_expiry', 'reset_email', 'otp_verified']:
+                request.session.pop(key, None)
+
+            messages.success(request, 'Password reset successful! Please login.')
+            return redirect('user_login')
+
+        except User.DoesNotExist:
+            messages.error(request, 'Something went wrong. Try again.')
+
+    return render(request, 'backend/reset_password.html')  
+
+
+# 🔥 Change Username
+@login_required(login_url='user_login')
+def change_username(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            new_username = data.get('username', '').strip()
+
+            if not new_username:
+                return JsonResponse({'status': 'error', 'message': 'Username cannot be empty'})
+
+            if len(new_username) < 3:
+                return JsonResponse({'status': 'error', 'message': 'Username must be at least 3 characters'})
+
+            if len(new_username) > 20:
+                return JsonResponse({'status': 'error', 'message': 'Username max 20 characters allowed'})
+
+            # Same username check
+            if new_username == request.user.username:
+                return JsonResponse({'status': 'error', 'message': 'This is already your username!'})
+
+            # Unique check
+            if User.objects.filter(username=new_username).exists():
+                return JsonResponse({'status': 'error', 'message': 'Username already taken!'})
+
+            # Save
+            request.user.username = new_username
+            request.user.save()
+
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Username updated successfully!',
+                'new_username': new_username
+            })
+
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'message': str(e)})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request'})

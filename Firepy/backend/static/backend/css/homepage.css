@@ -150,6 +150,7 @@ body {
    ══════════════════════ */
 header {
     position: sticky;
+    position: relative;
     top: 0;
     z-index: 100;
     display: flex;
@@ -2758,6 +2759,17 @@ footer {
     }
 }
 
+.hamburger-btn {
+    display: none;
+}
+
+/* Hidden on desktop */
+@media (min-width: 769px) {
+    .mobile-nav-drawer {
+        display: none !important;
+    }
+}
+
 /* ══════════════════════════════════════
    RESPONSIVE — 768px
    ══════════════════════════════════════ */
@@ -3151,7 +3163,118 @@ footer {
         max-width: calc(100% - 140px);
     }
 
+    /* ══════════════════════════════════════
+   Ha1mburger menu
+   ══════════════════════════════════════ */
+    /* Hamburger show karo */
+    .hamburger-btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 5px;
+        width: 34px;
+        height: 34px;
+        background: rgba(196, 174, 224, .06);
+        border: 1px solid rgba(180, 150, 230, .2);
+        border-radius: 50%;
+        cursor: pointer;
+        padding: 0;
+        transition: background .2s;
+    }
+
+    .hamburger-btn:hover {
+        background: rgba(139, 92, 246, .2);
+    }
+
+    .hamburger-btn span {
+        display: block;
+        height: 2px;
+        background: #c4b5fd;
+        border-radius: 2px;
+        transition: all .3s ease;
+    }
+
+    .hamburger-btn span:nth-child(1) {
+        width: 18px;
+    }
+
+    .hamburger-btn span:nth-child(2) {
+        width: 13px;
+    }
+
+    .hamburger-btn span:nth-child(3) {
+        width: 18px;
+    }
+
+    /* X state jab open ho */
+    .hamburger-btn.open span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+
+    .hamburger-btn.open span:nth-child(2) {
+        opacity: 0;
+        transform: scaleX(0);
+    }
+
+    .hamburger-btn.open span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+
+    /* Main nav desktop wala HIDE karo */
+    .main-nav {
+        display: none !important;
+    }
+
+    /* Mobile Drawer */
+    .mobile-nav-drawer {
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 54px;
+        /* header ke neeche */
+        left: 0;
+        right: 0;
+        background: rgba(13, 11, 26, .98);
+        border-bottom: 1px solid rgba(139, 92, 246, .2);
+        backdrop-filter: blur(24px);
+        overflow: hidden;
+        max-height: 0;
+        transition: max-height .35s cubic-bezier(.4, 0, .2, 1);
+        z-index: 99;
+    }
+
+    .mobile-nav-drawer.open {
+        max-height: 280px;
+    }
+
+    .mob-nav-tab {
+        display: flex;
+        align-items: center;
+        padding: 15px 22px;
+        color: #7c7097;
+        font-size: .88rem;
+        font-weight: 600;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(196, 174, 224, .06);
+        border-left: 3px solid transparent;
+        transition: all .2s ease;
+        letter-spacing: .02em;
+    }
+
+    .mob-nav-tab:hover {
+        color: #c4b5fd;
+        background: rgba(139, 92, 246, .08);
+    }
+
+    .mob-nav-tab.active {
+        color: #a78bfa;
+        border-left-color: #a78bfa;
+        background: rgba(139, 92, 246, .1);
+    }
+
 }
+
 
 /* ══════════════════════
    RESPONSIVE — 420px
