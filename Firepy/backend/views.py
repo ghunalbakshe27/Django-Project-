@@ -274,6 +274,7 @@ def homepage(request):
         'email': email,
         'is_authenticated': is_authenticated,
         'playlists_by_type': playlists_by_type,
+        'user_count': User.objects.count(),
     }
     return render(request, 'backend/homepage.html', context)
 

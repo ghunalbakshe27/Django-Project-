@@ -631,6 +631,7 @@ function attachRenameListener(canRename) {
     }
 
     function renderResults(songs) {
+        selectedIndex = -1;
         if (!songs.length) {
             searchResults.innerHTML = '<div class="search-empty">No songs found.</div>';
             return;
@@ -660,6 +661,43 @@ function attachRenameListener(canRename) {
                 playSong(parseInt(el.dataset.idx));
                 closeSearch();
             });
+        });
+    }
+
+    // ── Arrow key navigation ──
+    let selectedIndex = -1;
+
+    searchInput.addEventListener('keydown', function (e) {
+        const items = document.querySelectorAll('.search-result-item');
+        if (items.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            selectedIndex = (selectedIndex + 1) % items.length;
+            highlightItem(items);
+        }
+
+        if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+            highlightItem(items);
+        }
+
+        if (e.key === 'Enter' && selectedIndex !== -1) {
+            e.preventDefault();
+            playSong(selectedIndex);
+            closeSearch();
+        }
+    });
+
+    function highlightItem(items) {
+        items.forEach((item, i) => {
+            if (i === selectedIndex) {
+                item.style.background = 'rgba(139, 92, 246, .25)';
+                item.scrollIntoView({ block: 'nearest' });
+            } else {
+                item.style.background = '';
+            }
         });
     }
 
@@ -849,3 +887,23 @@ function attachRenameListener(canRename) {
     restoreMiniPlayer();
 
 })();
+
+document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        e.preventDefault(); // This prevents the default browser search from opening
+
+        const searchToggle = document.getElementById('searchToggle');
+        const searchExpanded = document.getElementById('searchExpanded');
+        const searchInput = document.getElementById('searchInput');
+
+        searchExpanded.classList.add('active');
+        searchToggle.style.display = 'none';
+        searchInput.focus(); // Cursor directly going to search input   
+    }
+});
+
+document.getElementById('searchClose').addEventListener('click', function () {
+    document.getElementById('searchExpanded').classList.remove('active');
+    document.getElementById('searchToggle').style.display = '';
+    document.getElementById('searchInput').value = '';
+});

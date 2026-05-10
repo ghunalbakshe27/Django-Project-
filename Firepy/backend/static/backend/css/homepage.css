@@ -2763,6 +2763,37 @@ footer {
     display: none;
 }
 
+/* ══════════════════════
+   FOOTER USER COUNT
+   ══════════════════════ */
+.footer-user-count {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 8px;
+    background: rgba(217, 70, 239, .10);
+    border: 1px solid rgba(217, 70, 239, .35);
+    border-radius: 100px;
+    padding: 8px 22px;
+}
+
+.footer-count-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.9rem;
+    color: #d946ef;
+    letter-spacing: .04em;
+    line-height: 1;
+    filter: drop-shadow(0 0 18px rgba(217, 70, 239, .55));
+}
+
+.footer-count-label {
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+    color: var(--purple-soft);
+}
+
+
 /* Hidden on desktop */
 @media (min-width: 769px) {
     .mobile-nav-drawer {
@@ -3155,6 +3186,12 @@ footer {
 
     .mini-player-right {
         display: none;
+    }
+
+    /* Close button ko alag se show karo */
+    .mp-close-btn {
+        display: flex;
+        flex-shrink: 0;
     }
 
 

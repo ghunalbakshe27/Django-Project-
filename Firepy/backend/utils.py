@@ -134,7 +134,10 @@ def send_welcome_email(user_email, user_name):
                 
                 <p style="margin-top: 30px;">
                     Happy Listening! 🎶<br>
-                    <strong>The FIREPY Team</strong>
+                    <br>
+                    <br>
+                    Best regards,<br>
+                    <strong>FIREPY Team</strong>
                 </p>
             </div>
             
@@ -299,7 +302,10 @@ def send_otp_email(user_email, user_name, otp):
 
                 <p style="margin-top: 30px;">
                     Stay secure! 🎶<br>
-                    <strong>The FIREPY Team</strong>
+                    <br>
+                    <br>
+                    Best regards,<br>
+                    <strong>FIREPY Team</strong>
                 </p>
             </div>
 
