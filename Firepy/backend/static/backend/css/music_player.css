@@ -1278,6 +1278,63 @@ footer {
     opacity: 1;
 }
 
+.search-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.5px solid rgba(180, 130, 255, 0.4);
+    border-radius: 50px;
+    padding: 10px 20px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.search-bar-container:focus-within {
+    border-color: #a855f7;
+    box-shadow: 0 0 18px rgba(168, 85, 247, 0.3);
+}
+
+.search-icon-svg {
+    width: 17px;
+    height: 17px;
+    stroke: #a855f7;
+    flex-shrink: 0;
+}
+
+.song-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #f0e6ff;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.song-search-input::placeholder {
+    color: #7c5fa0;
+}
+
+.search-clear-btn {
+    background: none;
+    border: none;
+    color: #9966cc;
+    font-size: 16px;
+    cursor: pointer;
+    display: none;
+    transition: color 0.2s;
+}
+
+.search-clear-btn:hover {
+    color: #c084fc;
+}
+
+.search-result-item.arrow-focused {
+    background: rgba(168, 85, 247, 0.2);
+    border-left: 3px solid #a855f7;
+    outline: none;
+}
+
 /* ══════════════════════════════════════════
    MOBILE — Stacked Layout (≤ 768px)
    Player on top, Playlist below

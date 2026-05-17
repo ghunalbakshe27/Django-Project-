@@ -35,16 +35,16 @@
 
         <div class="search-wrapper">
             <div class="search-bar-container">
-                <span class="search-icon">🔍</span>
+                <svg class="search-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                </svg>
                 <input type="text" id="songSearchInput" class="song-search-input"
                     placeholder="Search songs in this playlist..." autocomplete="off">
                 <button class="search-clear-btn" id="searchClearBtn" title="Clear">✕</button>
             </div>
-
-            <!-- Dropdown results appear here -->
-            <div class="search-dropdown" id="searchDropdown">
-                <!-- Results injected by JS -->
-            </div>
+            <div class="search-dropdown" id="searchDropdown"></div>
         </div>
 
         <!-- Original playlist content for authenticated users -->
@@ -693,6 +693,47 @@
                     item.closest('.song-options-dropdown').classList.remove('open');
                     return;
                 }
+
+                const searchToggle = document.getElementById('searchToggle');
+                const searchExpanded = document.getElementById('searchExpanded');
+                const songSearchInputEl = document.getElementById('songSearchInput');
+
+                // Pill click → expand with smooth animation
+                searchToggle.addEventListener('click', () => {
+                    searchToggle.style.opacity = '0';
+                    searchToggle.style.transform = 'scale(0.95)';
+
+                    setTimeout(() => {
+                        searchToggle.style.display = 'none';
+                        searchExpanded.classList.add('active');
+                        songSearchInputEl.focus();
+                    }, 180);  // wait for pill fade out
+                });
+
+                // Click outside → collapse smoothly
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.search-wrapper')) {
+                        searchExpanded.classList.remove('active');
+
+                        setTimeout(() => {
+                            searchToggle.style.display = 'flex';
+                            // fade pill back in
+                            searchToggle.style.opacity = '0';
+                            searchToggle.style.transform = 'scale(0.95)';
+                            requestAnimationFrame(() => {
+                                searchToggle.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+                                searchToggle.style.opacity = '1';
+                                searchToggle.style.transform = 'scale(1)';
+                            });
+                        }, 280);  // wait for expanded to fade out
+
+                        closeDropdown();
+                        songSearchInputEl.value = '';
+                        document.getElementById('searchClearBtn').style.display = 'none';
+                    }
+                });
+
+
 
                 // Click anywhere outside → close all dropdowns
                 document.querySelectorAll('.song-options-dropdown.open').forEach(d => d.classList.remove('open'));
