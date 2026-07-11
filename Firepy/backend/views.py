@@ -134,29 +134,36 @@ def get_recent_history(request):
 @login_required(login_url='user_login')
 def get_liked_songs(request):
     liked_songs = LikedSong.objects.filter(user=request.user).select_related('song')
-    
-    # Get or create user's playlist name
+
     playlist_name_obj, created = UserLikedPlaylistName.objects.get_or_create(
         user=request.user,
         defaults={'playlist_name': 'My Liked Songs'}
     )
-    
+
+    seen = set()  # dedupe by (title, artist) in case of leftover old duplicate likes
+    songs_list = []
+
+    for item in liked_songs:
+        key = (item.song.title.lower().strip(), item.song.artist.lower().strip())
+        if key in seen:
+            continue
+        seen.add(key)
+
+        songs_list.append({
+            'id': item.song.id,
+            'title': item.song.title,
+            'artist': item.song.artist,
+            'cover': item.song.cover_image.url if item.song.cover_image else '/static/backend/images/default-cover.jpg',
+            'audio': item.song.audio_file.url if item.song.audio_file else '',
+            'liked_at': item.liked_at.strftime('%B %d, %Y'),
+            'duration': '  '
+        })
+
     data = {
         'playlist_name': playlist_name_obj.playlist_name,
         'can_rename': playlist_name_obj.can_rename(),
         'days_until_rename': playlist_name_obj.days_until_rename(),
-        'songs': [
-            {
-                'id': item.song.id,
-                'title': item.song.title,
-                'artist': item.song.artist,
-                'cover': item.song.cover_image.url if item.song.cover_image else '/static/backend/images/default-cover.jpg',
-                'audio': item.song.audio_file.url if item.song.audio_file else '',  # 🔥 Audio URL
-                'liked_at': item.liked_at.strftime('%B %d, %Y'),
-                'duration': '  '  # 🔥 Add duration if available
-            }
-            for item in liked_songs
-        ]
+        'songs': songs_list
     }
     return JsonResponse(data)
 
@@ -201,41 +208,69 @@ def rename_liked_playlist(request):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
+# Helper: find every Song row (across all playlists) that represents
+# the same actual song, based on title + artist match
+def get_duplicate_song_ids(song):
+    return Song.objects.filter(
+        title__iexact=song.title.strip(),
+        artist__iexact=song.artist.strip()
+    ).values_list('id', flat=True)
 
-# 🔥 Toggle Like Song
+
+# 🔥 Toggle Like Song (now syncs across all duplicate copies of the song)
 @login_required(login_url='user_login')
 def toggle_like_song(request, song_id):
     if request.method == 'POST':
         try:
             song = Song.objects.get(id=song_id)
-            liked_song, created = LikedSong.objects.get_or_create(user=request.user, song=song)
-            
-            if not created:
-                liked_song.delete()
+            duplicate_ids = list(get_duplicate_song_ids(song))
+
+            already_liked = LikedSong.objects.filter(
+                user=request.user, song_id=song_id
+            ).exists()
+
+            if already_liked:
+                # Unlike every copy of this song across all playlists
+                LikedSong.objects.filter(
+                    user=request.user, song_id__in=duplicate_ids
+                ).delete()
                 return JsonResponse({'status': 'unliked', 'message': 'Song removed from liked songs'})
             else:
+                # Like every copy of this song across all playlists
+                for dup_id in duplicate_ids:
+                    LikedSong.objects.get_or_create(user=request.user, song_id=dup_id)
                 return JsonResponse({'status': 'liked', 'message': 'Song added to liked songs'})
+
         except Song.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Song not found'}, status=404)
-    
+
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 
-# 🔥 Track Song Play
+# 🔥 Track Song Play (single recent entry per song, no matter which playlist copy was played)
 @login_required(login_url='user_login')
 def track_song_play(request, song_id):
     if request.method == 'POST':
         try:
             song = Song.objects.get(id=song_id)
-            recent, created = RecentlyPlayed.objects.update_or_create(
+            duplicate_ids = list(get_duplicate_song_ids(song))
+
+            # Remove any existing recent-play rows for duplicate copies of this song
+            RecentlyPlayed.objects.filter(
+                user=request.user, song_id__in=duplicate_ids
+            ).delete()
+
+            # Create one fresh entry for the copy that was actually played just now
+            RecentlyPlayed.objects.create(
                 user=request.user,
                 song=song,
-                defaults={'played_at': timezone.now()}
+                played_at=timezone.now()
             )
             return JsonResponse({'status': 'success', 'message': 'Play tracked'})
+
         except Song.DoesNotExist:
             return JsonResponse({'status': 'error', 'message': 'Song not found'}, status=404)
-    
+
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 
