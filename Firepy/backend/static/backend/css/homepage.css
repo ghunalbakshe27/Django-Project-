@@ -2702,11 +2702,7 @@ footer {
 }
 
 .mp-like-btn svg {
-    width: 15px;
-    height: 15px;
-    fill: none;
-    stroke: var(--text-dim);
-    stroke-width: 2;
+    display: none;
 }
 
 .mp-like-btn.liked svg {
