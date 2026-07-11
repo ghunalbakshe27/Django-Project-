@@ -290,10 +290,9 @@
 
             async function checkLikeStatus(songId) {
                 try {
-                    const response = await fetch('/api/liked-songs/');
+                    const response = await fetch(`/api/check-like-status/${songId}/`);
                     const data = await response.json();
-                    const likedSongIds = data.songs.map(s => s.id);
-                    return likedSongIds.includes(songId);
+                    return data.is_liked === true;
                 } catch (error) {
                     console.error('Error checking like status:', error);
                     return false;

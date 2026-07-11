@@ -30,6 +30,7 @@ urlpatterns = [
     # 🔥 NEW: Change Username Endpoint
     path('api/change-username/', views.change_username, name='change_username'),
 
+    path('api/check-like-status/<int:song_id>/', views.check_like_status, name='check_like_status'),
     # Password Reset Flow
     
     path('forgot-password/', views.forgot_password, name='forgot_password'),

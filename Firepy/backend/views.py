@@ -28,15 +28,15 @@ def search_songs(request):
     ).values('id', 'title', 'artist', 'audio_file', 'cover_image')[:20]
     
     results = []
-    seen = set()  # 🔥 track kar lo kaun se songs already add ho gaye
+    seen = set()  # Track which songs are already added
     
     for song in songs:
-        # Title + Artist combination unique key banao
+        # Build a unique key from title + artist combination
         key = (song['title'].lower().strip(), song['artist'].lower().strip())
         
         if key in seen:
-            continue  # duplicate hai — skip karo
-        seen.add(key)  # pehli baar aa rha hai — mark karo
+            continue  # Duplicate, skip it
+        seen.add(key)  # First time seeing this song, mark it
         
         audio_url = ''
         cover_url = ''
@@ -65,23 +65,18 @@ def search_songs_in_playlist(request):
     q = request.GET.get('q', '').strip()
     playlist_id = request.GET.get('playlist_id', '')
 
-    # If search term is empty, return empty list
     if not q:
         return JsonResponse({'songs': []})
 
-    # Base queryset: songs in this playlist only
     try:
         playlist = Playlist.objects.get(id=playlist_id)
-        songs_qs = playlist.songs.all()  # assumes ManyToMany or FK — adjust if needed
+        songs_qs = playlist.songs.all()
     except Playlist.DoesNotExist:
         return JsonResponse({'songs': [], 'error': 'Playlist not found'})
 
-    # icontains = case-insensitive "contains" search
-    # We search in both title AND artist fields using OR (|)
-    from django.db.models import Q
     results = songs_qs.filter(
         Q(title__icontains=q) | Q(artist__icontains=q)
-    )[:10]  # limit to 10 results max
+    )[:10]
 
     songs_data = [
         {
@@ -96,9 +91,7 @@ def search_songs_in_playlist(request):
     return JsonResponse({'songs': songs_data})
 
 
-
-
-# 🔥 Personal Details API
+# Personal Details API
 @login_required(login_url='user_login')
 def get_personal_details(request):
     user = request.user
@@ -111,7 +104,7 @@ def get_personal_details(request):
     return JsonResponse(data)
 
 
-# 🔥 Recent History API
+# Recent History API
 @login_required(login_url='user_login')
 def get_recent_history(request):
     recent_songs = RecentlyPlayed.objects.filter(user=request.user).select_related('song')[:20]
@@ -131,6 +124,7 @@ def get_recent_history(request):
     }
     return JsonResponse(data)
 
+
 @login_required(login_url='user_login')
 def get_liked_songs(request):
     liked_songs = LikedSong.objects.filter(user=request.user).select_related('song')
@@ -140,7 +134,7 @@ def get_liked_songs(request):
         defaults={'playlist_name': 'My Liked Songs'}
     )
 
-    seen = set()  # dedupe by (title, artist) in case of leftover old duplicate likes
+    seen = set()  # Dedupe by (title, artist) so the same song doesn't appear twice
     songs_list = []
 
     for item in liked_songs:
@@ -168,7 +162,7 @@ def get_liked_songs(request):
     return JsonResponse(data)
 
 
-# 🔥 NEW: Rename Liked Playlist
+# Rename Liked Playlist
 @login_required(login_url='user_login')
 def rename_liked_playlist(request):
     if request.method == 'POST':
@@ -199,7 +193,7 @@ def rename_liked_playlist(request):
                 'status': 'success',
                 'message': 'Playlist renamed successfully!',
                 'playlist_name': new_name,
-                'can_rename': True,   # ✅ always true now
+                'can_rename': True,
                 'days_until_rename': 0
             })
 
@@ -208,8 +202,9 @@ def rename_liked_playlist(request):
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
+
 # Helper: find every Song row (across all playlists) that represents
-# the same actual song, based on title + artist match
+# the same actual song, based on a case-insensitive title + artist match
 def get_duplicate_song_ids(song):
     return Song.objects.filter(
         title__iexact=song.title.strip(),
@@ -217,7 +212,7 @@ def get_duplicate_song_ids(song):
     ).values_list('id', flat=True)
 
 
-# 🔥 Toggle Like Song (now syncs across all duplicate copies of the song)
+# Toggle Like Song — syncs like status across all duplicate copies of the song
 @login_required(login_url='user_login')
 def toggle_like_song(request, song_id):
     if request.method == 'POST':
@@ -247,7 +242,22 @@ def toggle_like_song(request, song_id):
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 
-# 🔥 Track Song Play (single recent entry per song, no matter which playlist copy was played)
+# Check like status by checking all duplicate copies of the song,
+# instead of relying on the deduped liked-songs list (fixes stale/incorrect UI state)
+@login_required(login_url='user_login')
+def check_like_status(request, song_id):
+    try:
+        song = Song.objects.get(id=song_id)
+        duplicate_ids = get_duplicate_song_ids(song)
+        is_liked = LikedSong.objects.filter(
+            user=request.user, song_id__in=duplicate_ids
+        ).exists()
+        return JsonResponse({'is_liked': is_liked})
+    except Song.DoesNotExist:
+        return JsonResponse({'is_liked': False, 'error': 'Song not found'}, status=404)
+
+
+# Track Song Play — single recent entry per song, regardless of which playlist copy was played
 @login_required(login_url='user_login')
 def track_song_play(request, song_id):
     if request.method == 'POST':
@@ -274,14 +284,11 @@ def track_song_play(request, song_id):
     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 
-# 🔥 UPDATED: Homepage with Dynamic Playlists
-
+# Homepage with Dynamic Playlists
 def homepage(request):
     user = request.user
     
-    # Check if user is authenticated
     if user.is_authenticated:
-        # Get full name
         full_name = f"{user.first_name} {user.last_name}".strip()
         if not full_name:
             full_name = user.username
@@ -290,12 +297,10 @@ def homepage(request):
         email = user.email
         is_authenticated = True
     else:
-        # For anonymous users
         username = "Firepy Guest"
         email = "Guest@firepy.com"
         is_authenticated = False
     
-    # 🔥 Get playlists dynamically grouped by type
     playlists_by_type = {
         'playlist1': Playlist.objects.filter(playlist_type='playlist1', is_active=True).order_by('order'),
         'playlist2': Playlist.objects.filter(playlist_type='playlist2', is_active=True).order_by('order'),
@@ -314,18 +319,15 @@ def homepage(request):
     return render(request, 'backend/homepage.html', context)
 
 
-# 🔥 UPDATED: About Us
 def aboutus(request):
     return render(request, 'backend/aboutus.html')
 
 
-# 🔥 NEW: Generic Playlist View
+# Generic Playlist View
 def playlist_view(request, slug):
     """Generic view for any playlist by slug"""
     
-    # Check if user is authenticated
     if not request.user.is_authenticated:
-        # For non-authenticated users, show limited view with login prompt
         playlist = get_object_or_404(Playlist, slug=slug, is_active=True)
         context = {
             'playlist': playlist,
@@ -334,7 +336,6 @@ def playlist_view(request, slug):
         }
         return render(request, 'backend/playlist_player.html', context)
     
-    # For authenticated users, show full playlist
     playlist = get_object_or_404(Playlist, slug=slug, is_active=True)
     songs = playlist.songs.all().order_by('created_at')[:50]
     
@@ -359,7 +360,8 @@ def playlist_view(request, slug):
     }
     return render(request, 'backend/playlist_player.html', context)
 
-# 🔥 AUTHENTICATION VIEWS
+
+# Authentication Views
 @csrf_protect
 def user_login(request):
     if request.method == 'POST':
@@ -386,12 +388,10 @@ def user_register(request):
         password = request.POST.get('password')
         confirm_password = request.POST.get('confirmpassword')
         
-        # Split fullname
         name_parts = fullname.strip().split(' ', 1)
         first_name = name_parts[0] if name_parts else ''
         last_name = name_parts[1] if len(name_parts) > 1 else ''
         
-        # Validation
         if not fullname.strip():
             messages.error(request, 'Full name is required!')
             return redirect('ogregister')
@@ -418,7 +418,6 @@ def user_register(request):
             user.set_password(password)
             user.save()
 
-            # 🔥 SEND WELCOME EMAIL
             send_welcome_email(email, fullname or username)
             
             messages.success(request, 'Registration successful! Please login.')
@@ -436,6 +435,7 @@ def user_logout(request):
     messages.success(request, '')
     return redirect('homepage')
 
+
 def test_email(request):
     """
     Test function to check if email is working
@@ -446,8 +446,9 @@ def test_email(request):
         return JsonResponse({'status': 'success', 'message': 'Test email sent!'})
     else:
         return JsonResponse({'status': 'error', 'message': 'Email failed!'})
-    
-# 🔥 Forgot Password — email lo, OTP bhejo
+
+
+# Forgot Password — collect email, send OTP
 def forgot_password(request):
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
@@ -458,16 +459,13 @@ def forgot_password(request):
             messages.error(request, 'No account found with this email.')
             return render(request, 'backend/forgot_password.html')
 
-        # OTP generate karo
         otp = str(random.randint(100000, 999999))
         expiry = (timezone.now() + timedelta(minutes=10)).isoformat()
 
-        # Session mein store karo
         request.session['reset_otp'] = otp
         request.session['reset_otp_expiry'] = expiry
         request.session['reset_email'] = email
 
-        # Email bhejo
         from backend.utils import send_otp_email
         send_otp_email(email, user.username, otp)
 
@@ -477,7 +475,7 @@ def forgot_password(request):
     return render(request, 'backend/forgot_password.html')
 
 
-# 🔥 OTP Verify
+# OTP Verify
 def verify_otp(request):
     if request.method == 'POST':
         entered_otp = request.POST.get('otp', '').strip()
@@ -488,7 +486,6 @@ def verify_otp(request):
             messages.error(request, 'Session expired. Please try again.')
             return redirect('forgot_password')
 
-        # Expiry check
         expiry = datetime.fromisoformat(expiry_str)
         if timezone.now() > expiry:
             messages.error(request, 'OTP expired. Please request a new one.')
@@ -503,7 +500,7 @@ def verify_otp(request):
     return render(request, 'backend/verify_otp.html')
 
 
-# 🔥 Reset Password
+# Reset Password
 def reset_password(request):
     if not request.session.get('otp_verified'):
         messages.error(request, 'Please verify OTP first.')
@@ -527,7 +524,6 @@ def reset_password(request):
             user.set_password(new_pass)
             user.save()
 
-            # Session saaf karo
             for key in ['reset_otp', 'reset_otp_expiry', 'reset_email', 'otp_verified']:
                 request.session.pop(key, None)
 
@@ -540,7 +536,7 @@ def reset_password(request):
     return render(request, 'backend/reset_password.html')  
 
 
-# 🔥 Change Username
+# Change Username
 @login_required(login_url='user_login')
 def change_username(request):
     if request.method == 'POST':
@@ -557,15 +553,12 @@ def change_username(request):
             if len(new_username) > 20:
                 return JsonResponse({'status': 'error', 'message': 'Username max 20 characters allowed'})
 
-            # Same username check
             if new_username == request.user.username:
                 return JsonResponse({'status': 'error', 'message': 'This is already your username!'})
 
-            # Unique check
             if User.objects.filter(username=new_username).exists():
                 return JsonResponse({'status': 'error', 'message': 'Username already taken!'})
 
-            # Save
             request.user.username = new_username
             request.user.save()
 
